@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+/**
+ * Classe responsável pelo processamento da regra de negócio
+ */
 @Service
 public class FornecedorService {
 
@@ -37,14 +40,17 @@ public class FornecedorService {
     }
 
     private void validate(FornecedorDTO fornecedorDTO){
+
         LOGGER.info("Validando fornecedor");
 
         if(StringUtils.isEmpty(fornecedorDTO.getCnpj())){
             throw new IllegalArgumentException("FornecedorDTO não deve ser nulo/vazio");
         }
+
     }
 
     public FornecedorDTO FindById(Long id){
+
         Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findById(id);
 
         if(fornecedorOptional.isPresent()){
@@ -55,6 +61,7 @@ public class FornecedorService {
     }
 
     public FornecedorDTO update(FornecedorDTO fornecedorDTO, Long id) {
+
         Optional<Fornecedor> fornecedorExistenteOptional = this.iFornecedorRepository.findById(id);
 
         if(fornecedorExistenteOptional.isPresent()){
@@ -81,6 +88,7 @@ public class FornecedorService {
     }
 
     public void delete(Long id){
+
         LOGGER.info("Executando delete para usuário de ID: [{}]", id);
 
         this.iFornecedorRepository.deleteById(id);

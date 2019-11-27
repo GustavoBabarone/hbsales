@@ -1,45 +1,32 @@
 package br.com.hbsis.categoriaProduto;
 
+import br.com.hbsis.fornecedor.Fornecedor;
+
 public class CategoriaProdutoDTO {
 
     /* ATRIBUTOS */
-    private Long id;
-    private String nomeCategoria;
+    private Long codigoCategoria;
     private Long idFornecedorCategoria;
+    private String nomeCategoria;
 
-    /* CONSTRUTORES */
+    /* CONSTRUTORES INICIO */
     public CategoriaProdutoDTO(){
     }
 
-    public CategoriaProdutoDTO(Long id, String nomeCategoria, Long idFornecedorCategoria) {
-        this.id = id;
-        this.nomeCategoria = nomeCategoria;
+    public CategoriaProdutoDTO(Long codigoCategoria, Long idFornecedorCategoria, String nomeCategoria) {
+        this.codigoCategoria = codigoCategoria;
         this.idFornecedorCategoria = idFornecedorCategoria;
-    }
-
-    public static CategoriaProdutoDTO of(Categoria categoria){
-        return new CategoriaProdutoDTO(
-                categoria.getId(),
-                categoria.getNomeCategoria(),
-                categoria.getIdFornecedorCategoria()
-        );
-    }
-
-    /* GETTER & SETTER */
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNomeCategoria() {
-        return nomeCategoria;
-    }
-
-    public void setNomeCategoria(String nomeCategoria) {
         this.nomeCategoria = nomeCategoria;
+    }
+    /* CONSTRUTORES FIM */
+
+    /* GETTER & SETTER INICIO */
+    public Long getCodigoCategoria() {
+        return codigoCategoria;
+    }
+
+    public void setCodigoCategoria(Long codigoCategoria) {
+        this.codigoCategoria = codigoCategoria;
     }
 
     public Long getIdFornecedorCategoria() {
@@ -50,10 +37,20 @@ public class CategoriaProdutoDTO {
         this.idFornecedorCategoria = idFornecedorCategoria;
     }
 
+    public String getNomeCategoria() {
+        return nomeCategoria;
+    }
+
+    public void setNomeCategoria(String nomeCategoria) {
+        this.nomeCategoria = nomeCategoria;
+    }
+    /* GETTER & SETTER FIM */
+
+    // ? ? ?
     @Override
     public String toString(){
         return "CategoriaProdutoDTO{" +
-                "id = " + id +
+                "codigoCategoria = " + codigoCategoria +
                 ", nomeCategoria = " + nomeCategoria + '\'' +
                 ", idFornecedorCategoria = " + idFornecedorCategoria + '\'' +
                 "}";

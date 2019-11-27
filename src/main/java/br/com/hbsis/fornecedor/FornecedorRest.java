@@ -23,6 +23,7 @@ public class FornecedorRest {
 
     @PostMapping
     public FornecedorDTO save(@RequestBody FornecedorDTO fornecedorDTO){
+
         LOGGER.info("Recebendo solicitação de persistência de fornecedor...");
         LOGGER.debug("PayaLoad: {}", fornecedorDTO);
 
@@ -39,6 +40,7 @@ public class FornecedorRest {
 
     @PutMapping("/{id}")
     public FornecedorDTO update(@PathVariable("id") Long id, @RequestBody FornecedorDTO fornecedorDTO){
+
         LOGGER.info("Recebendo Update para fornecedor de ID: {}", id);
         LOGGER.debug("PayLoad: {}", fornecedorDTO);
 
@@ -47,6 +49,7 @@ public class FornecedorRest {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id){
+
         LOGGER.info("Recebendo delete para fornecedor de ID: {}", id);
 
         this.fornecedorService.delete(id);

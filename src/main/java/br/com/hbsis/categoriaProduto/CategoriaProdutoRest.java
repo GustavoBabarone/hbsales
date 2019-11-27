@@ -9,13 +9,16 @@ import org.springframework.web.bind.annotation.*;
  *  CLASSE RESPONSÁVEL POR RECEBER AS REQUISIÇÕES EXTERNAS AO SISTEMA
  */
 @RestController
-@RequestMapping("/categorias")
+@RequestMapping("/categorias") // MAPEAMENTO DAS SOLICITAÇÕES
 public class CategoriaProdutoRest {
 
+    // ENVIA MENSAGENS PARA O 'CONSOLE' DURANTE EXECUÇÃO DO PROGRAMA
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaProdutoRest.class);
 
+    //
     private final CategoriaProdutoService categoriaProdutoService;
 
+    //
     @Autowired
 
     public CategoriaProdutoRest(CategoriaProdutoService categoriaProdutoService) {
