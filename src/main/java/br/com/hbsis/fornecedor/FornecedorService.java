@@ -60,6 +60,21 @@ public class FornecedorService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    /* ENCONTRAR POR ID DE FORNECEDOR - COMEÇO */
+    public FornecedorDTO findIdFornecedor(Long id){
+
+        // LISTA ?
+        Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findById(id);
+
+        if(fornecedorOptional.isPresent()){
+            FornecedorDTO.of(fornecedorOptional.get());
+        }
+
+        throw new IllegalArgumentException(String.format("Fornecedor não existe ",  id));
+
+    }
+    /* FINAL */
+
     public FornecedorDTO update(FornecedorDTO fornecedorDTO, Long id) {
 
         Optional<Fornecedor> fornecedorExistenteOptional = this.iFornecedorRepository.findById(id);

@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
  * CLASSE RESPONSÁVEL PELA COMUNICAÇÃO COM O BANCO DE DADOS
  */
 @Repository
-public interface ICategoriaProdutoRepository extends JpaRepository<Categoria, Long> {
+public interface ICategoriaProdutoRepository extends JpaRepository<CategoriaProduto, Long> {
 }

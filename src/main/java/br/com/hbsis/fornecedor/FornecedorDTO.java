@@ -93,4 +93,17 @@ public class FornecedorDTO {
     public void setEmailContato(String emailContato) {
         this.emailContato = emailContato;
     }
+
+    @Override
+    public  String toString() {
+        return "FornecedorDTO{" +
+                "id = " + id +
+                ", razaoSocial = " + razaoSocial + '\'' +
+                ", cnpj = " + cnpj + '\'' +
+                ", nomeFantasia = " + nomeFantasia + '\'' +
+                ", endereco = " + endereco + '\'' +
+                ", telefoneContato = " + telefoneContato + '\'' +
+                ", emailContato = " + emailContato + '\'' +
+                '}';
+    }
 }

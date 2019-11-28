@@ -1,6 +1,9 @@
 package br.com.hbsis.fornecedor;
 
+import br.com.hbsis.categoriaProduto.CategoriaProduto;
+
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * CLASSE RESPONSÁVEL PELO MAPEAMENTO DA ENTIDADE DO BANCO DE DADOS
@@ -24,6 +27,10 @@ public class Fornecedor {
     private String telefoneContato;
     @Column(name = "emailContato", unique = true, nullable = false, length = 60)
     private String emailContato;
+
+    /* OBS: CADA FORNECEDOR TEM VARIÁS CATEGORIAS */
+    @OneToMany
+    private List<CategoriaProduto> categoriaProduto;
 
     /* GETTER */
     public Long getId() { return id;}
