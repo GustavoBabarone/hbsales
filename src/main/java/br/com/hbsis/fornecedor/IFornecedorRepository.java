@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
  * Classe responsável pela comunciação com o banco de dados
  */
 @Repository
-public interface IFornecedorRepository extends JpaRepository<Fornecedor, Long> {
+interface IFornecedorRepository extends JpaRepository<Fornecedor, Long> {
 }

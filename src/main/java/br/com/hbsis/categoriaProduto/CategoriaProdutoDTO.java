@@ -1,8 +1,5 @@
 package br.com.hbsis.categoriaProduto;
 
-import br.com.hbsis.fornecedor.Fornecedor;
-import br.com.hbsis.fornecedor.FornecedorDTO;
-
 public class CategoriaProdutoDTO {
 
     /* ATRIBUTOS */
@@ -28,7 +25,7 @@ public class CategoriaProdutoDTO {
 
                 categoriaProduto.getId(),
                 categoriaProduto.getCodigo(),
-                categoriaProduto.getFornecedor(),
+                categoriaProduto.getFornecedor().getId(),// * TESTE *
                 categoriaProduto.getNome()
         );
     }
@@ -55,7 +52,7 @@ public class CategoriaProdutoDTO {
         return idFornecedor;
     }
 
-    public void setIdFornecedor(Long idFornecedo) {
+    public void setIdFornecedor(Long idFornecedor) {
         this.idFornecedor = idFornecedor;
     }
 
@@ -70,13 +67,12 @@ public class CategoriaProdutoDTO {
 
     // ? ? ?
     @Override
-    public String toString(){
+    public String toString() {
         return "CategoriaProdutoDTO{" +
-                "id = "             + id +
-                ", codigo = "       + codigo +       '\'' +
-                ", idFornecedor = " + idFornecedor + '\'' +
-                ", nome = "         + nome +         '\'' +
-                "}";
+                "id=" + id +
+                ", codigo=" + codigo +
+                ", idFornecedor=" + idFornecedor +
+                ", nome='" + nome + '\'' +
+                '}';
     }
-
 }

@@ -5,7 +5,7 @@ import org.bouncycastle.asn1.x500.style.RFC4519Style;
 /**
  * Classe para tráfego das informações do usuário
  */
-public class FornecedorDTO {
+public class FornecedorDTO{
 
     /* ATRIBUTOS */
     private Long id;
@@ -98,12 +98,12 @@ public class FornecedorDTO {
     public  String toString() {
         return "FornecedorDTO{" +
                 "id = " + id +
-                ", razaoSocial = " + razaoSocial + '\'' +
+                ", razao_social = " + razaoSocial + '\'' +
                 ", cnpj = " + cnpj + '\'' +
-                ", nomeFantasia = " + nomeFantasia + '\'' +
+                ", nome_fantasia = " + nomeFantasia + '\'' +
                 ", endereco = " + endereco + '\'' +
-                ", telefoneContato = " + telefoneContato + '\'' +
-                ", emailContato = " + emailContato + '\'' +
+                ", telefone_contato = " + telefoneContato + '\'' +
+                ", email_contato = " + emailContato + '\'' +
                 '}';
     }
 }

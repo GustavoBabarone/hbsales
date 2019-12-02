@@ -49,31 +49,27 @@ public class FornecedorService {
 
     }
 
-    public FornecedorDTO FindById(Long id){
+    public FornecedorDTO findById(Long id){
 
         Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findById(id);
 
         if(fornecedorOptional.isPresent()){
-            FornecedorDTO.of(fornecedorOptional.get());
+            Fornecedor fornecedor = fornecedorOptional.get();
+            FornecedorDTO fornecedorDTO = FornecedorDTO.of(fornecedor);
+
+            return fornecedorDTO;
         }
 
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+        /*String nome = "Gustavo";
+        String empresa = "HBSIS";
+        String mensagem = "meu nome é " + nome + " e eu trabalho na " + empresa + ".";
+
+        String format1 = String.format("Meu nome é %s e eu trabalho na %s", nome, empresa);*/
+
+        String format = String.format("ID %s não existe", id);
+
+        throw new IllegalArgumentException(format);
     }
-
-    /* ENCONTRAR POR ID DE FORNECEDOR - COMEÇO */
-    public FornecedorDTO findIdFornecedor(Long id){
-
-        // LISTA ?
-        Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findById(id);
-
-        if(fornecedorOptional.isPresent()){
-            FornecedorDTO.of(fornecedorOptional.get());
-        }
-
-        throw new IllegalArgumentException(String.format("Fornecedor não existe ",  id));
-
-    }
-    /* FINAL */
 
     public FornecedorDTO update(FornecedorDTO fornecedorDTO, Long id) {
 

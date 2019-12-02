@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  *  CLASSE RESPONSÁVEL POR RECEBER AS REQUISIÇÕES EXTERNAS AO SISTEMA
  */
@@ -15,12 +17,9 @@ public class CategoriaProdutoRest {
     // ENVIA MENSAGENS PARA O 'CONSOLE' DURANTE EXECUÇÃO DO PROGRAMA
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaProdutoRest.class);
 
-    //
     private final CategoriaProdutoService categoriaProdutoService;
 
-    //
     @Autowired
-
     public CategoriaProdutoRest(CategoriaProdutoService categoriaProdutoService) {
         this.categoriaProdutoService = categoriaProdutoService;
     }
@@ -54,5 +53,13 @@ public class CategoriaProdutoRest {
         LOGGER.info("Recebendo delete para categoria de id: {}", id);
 
         this.categoriaProdutoService.delete(id);
+    }
+
+    // EXPORTAR PARA CSV - ATIVIDADE 3
+    // MÉTODO DE LISTAGEM DOS DADOS
+    @GetMapping("/exportarcsv")
+    public void exportarCSV(HttpServletResponse file) throws Exception {
+
+        categoriaProdutoService.findAll(file);
     }
 }

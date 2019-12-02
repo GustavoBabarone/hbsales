@@ -35,7 +35,7 @@ public class FornecedorRest {
 
         LOGGER.info("Recebendo find by ID .. id: [{}]", id);
 
-        return this.fornecedorService.FindById(id);
+        return this.fornecedorService.findById(id);
     }
 
     @PutMapping("/{id}")

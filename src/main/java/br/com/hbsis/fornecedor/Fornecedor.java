@@ -3,6 +3,8 @@ package br.com.hbsis.fornecedor;
 import br.com.hbsis.categoriaProduto.CategoriaProduto;
 
 import javax.persistence.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,22 +17,19 @@ public class Fornecedor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "razaoSocial", nullable = false, length = 100)
+    @Column(name = "razao_social", nullable = false, length = 100)
     private String razaoSocial;
     @Column(name = "cnpj", unique = true, nullable = false, length = 18)
     private String cnpj;
-    @Column(name = "nomeFantasia", unique = true, nullable = false, length = 50)
+    @Column(name = "nome_fantasia", unique = true, nullable = false, length = 50)
     private String nomeFantasia;
     @Column(name = "endereco", nullable = false, length = 70)
     private String endereco;
-    @Column(name = "telefoneContato", unique = true, nullable = false, length = 16)
+    @Column(name = "telefone_contato", unique = true, nullable = false, length = 16)
     private String telefoneContato;
-    @Column(name = "emailContato", unique = true, nullable = false, length = 60)
+    @Column(name = "email_contato", unique = true, nullable = false, length = 60)
     private String emailContato;
 
-    /* OBS: CADA FORNECEDOR TEM VARIÁS CATEGORIAS */
-    @OneToMany
-    private List<CategoriaProduto> categoriaProduto;
 
     /* GETTER */
     public Long getId() { return id;}
@@ -48,6 +47,10 @@ public class Fornecedor {
     public String getEmailContato() { return emailContato; }
 
     /* SETTER */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setRazaoSocial(String razaoSocial) { this.razaoSocial = razaoSocial; }
 
     public void setCnpj(String cnpj) {this.cnpj = cnpj;}
@@ -64,12 +67,12 @@ public class Fornecedor {
     public String toString(){
         return "Fornecedor{ " +
                 "id = " + id +
-                ", Razão Social = " + razaoSocial + '\'' +
-                ", CNPJ = " + cnpj + '\'' +
-                ", Nome Fantasia = " + nomeFantasia + '\'' +
-                ", Endereco = " + nomeFantasia + '\'' +
-                ", Telefone de Contato = " + telefoneContato + '\'' +
-                ", E-mail de Contato = " + emailContato + '\'' +
+                ", razao_social = " + razaoSocial + '\'' +
+                ", cnpj = " + cnpj + '\'' +
+                ", nome_fantasia = " + nomeFantasia + '\'' +
+                ", endereco = " + nomeFantasia + '\'' +
+                ", telefone_contato = " + telefoneContato + '\'' +
+                ", email_contato = " + emailContato + '\'' +
                 "}";
     }
 }

@@ -23,10 +23,10 @@ public class CategoriaProduto {
 
     // MUITAS CATEGORIAS PARA UM ÚNICO FORNECEDOR
     @ManyToOne
-    @JoinColumn(name = "idFornecedor", nullable = false)
+    @JoinColumn(name = "id_fornecedor", referencedColumnName = "id", nullable = false)
     private Fornecedor fornecedor;
 
-    @Column(name = "nome", unique = false, nullable = false, length = 70)
+    @Column(name = "nome", nullable = false, length = 70)
     private String nome;
 
     /* GETTER & SETTER */
@@ -34,9 +34,9 @@ public class CategoriaProduto {
         return id;
     }
 
-    /*public void setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
-    }*/
+    }
 
     public Long getCodigo() {
         return codigo;
@@ -44,14 +44,6 @@ public class CategoriaProduto {
 
     public void setCodigo(Long codigo) {
         this.codigo = codigo;
-    }
-
-    public Fornecedor getFornecedor() {
-        return fornecedor;
-    }
-
-    public void setFornecedor(Fornecedor fornecedor) {
-        this.fornecedor = fornecedor;
     }
 
     public String getNome() {
@@ -62,14 +54,24 @@ public class CategoriaProduto {
         this.nome = nome;
     }
 
+    // * TESTE *
+    public Fornecedor getFornecedor() {
+        return fornecedor;
+    }
+
+    public void setFornecedor(Fornecedor fornecedor) {
+        this.fornecedor = fornecedor;
+    }
+    // * TESTE *
+
     // ? ? ?
     @Override
     public String toString(){
         return "Categoria{ " +
-                "id = "             +   id          +
-                ", codigo = "       +    codigo     + '\'' +
-                ", idFornecedor = " +   fornecedor  + '\'' +
-                ", nome = "         +   nome        + '\'' +
+                "id = "              +   id             +
+                ", codigo = "        +   codigo         + '\'' +
+                ", id_fornecedor = " +   fornecedor     + '\'' +
+                ", nome = "          +   nome           + '\'' +
                 "}";
     }
 

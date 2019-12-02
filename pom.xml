@@ -19,7 +19,17 @@
         <spring-cloud.version>Hoxton.RC2</spring-cloud.version>
     </properties>
 
+    <!-- DEPENDENCIAS -->
     <dependencies>
+
+        <!-- opencsv 5 - Importar quando copiar código -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.0</version>
+        </dependency>
+        <!-- opencsv 5 -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
