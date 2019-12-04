@@ -3,18 +3,21 @@ package br.com.hbsis.categoriaProduto;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorService;
-import com.opencsv.CSVWriter;
-import com.opencsv.CSVWriterBuilder;
-import com.opencsv.ICSVWriter;
+import com.opencsv.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.rmi.server.ExportException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,8 +30,6 @@ public class CategoriaProdutoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaProdutoService.class);
 
     private final ICategoriaProdutoRepository iCategoriaProdutoRepository;
-
-    // ? ? ?
     private final FornecedorService fornecedorService;
 
     /* CONTRUTOR */
@@ -98,8 +99,6 @@ public class CategoriaProdutoService {
             throw new IllegalArgumentException("Código não deve ser nulo");
         }
 
-
-
         if (StringUtils.isEmpty(categoriaProdutoDTO.getNome())) {
             throw new IllegalArgumentException("Nome não deve ser nulo/vazio");
         }
@@ -111,11 +110,16 @@ public class CategoriaProdutoService {
         Optional<CategoriaProduto> categoriaProdutoOptional = this.iCategoriaProdutoRepository.findById(id);
 
         if (categoriaProdutoOptional.isPresent()) {
-            CategoriaProdutoDTO.of(categoriaProdutoOptional.get());
+            CategoriaProduto categoriaProduto = categoriaProdutoOptional.get();
+            CategoriaProdutoDTO categoriaProdutoDTO = CategoriaProdutoDTO.of(categoriaProduto);
+
+            return categoriaProdutoDTO;
+
         }
 
-        throw new IllegalArgumentException(String.format("Id %s não existe", id));
+        String format = String.format("Id %s não existe", id);
 
+        throw new IllegalArgumentException(format);
     }
 
     public CategoriaProdutoDTO update(CategoriaProdutoDTO categoriaProdutoDTO, Long id) {
@@ -124,6 +128,7 @@ public class CategoriaProdutoService {
         Optional<CategoriaProduto> categoriaProdutoExistenteOptional = this.iCategoriaProdutoRepository.findById(id);
 
         if (categoriaProdutoExistenteOptional.isPresent()) {
+
             CategoriaProduto categoriaProdutoExistente = categoriaProdutoExistenteOptional.get();
 
             LOGGER.info("Atualizando categoria... id: [{}]", categoriaProdutoExistente.getId());
@@ -191,6 +196,44 @@ public class CategoriaProdutoService {
                     rows.getFornecedor().getId().toString(),
                     rows.getNome()});
         }
+    }
+
+    // IMPORTAR DE UM CSV - ATIVIDADE 4
+    public List<CategoriaProduto> obterTudo(MultipartFile file) throws Exception {
+
+        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
+
+        CSVReader leitor = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
+
+        List<String[]> row = leitor.readAll();
+        List<CategoriaProduto> categoriaProdutoList = new ArrayList<>();
+
+        for(String[] linha : row){
+
+            String[] vetor = linha[0].replaceAll("\"", "").split(";");
+
+            // OBJETOS DAS CLASSES CategoriaProduto e Fornecedor
+            CategoriaProduto categoriaProduto = new CategoriaProduto();
+            categoriaProduto.setId(Long.parseLong(vetor[0]));
+            categoriaProduto.setCodigo(Long.parseLong(vetor[1]));
+
+            // CONVERTANDO VARIÁVEL TIPO FornecedorDTO PARA Fornecedor
+            Fornecedor fornecedor = new Fornecedor();
+            FornecedorDTO fornecedorDTO = fornecedorService.findById(Long.parseLong(vetor[2]));
+            fornecedor = conversor(fornecedorDTO);
+
+            categoriaProduto.setFornecedor(fornecedor);
+            categoriaProduto.setNome(vetor[3]);
+
+            // ADICIONAR OBJ CategoriaProduto NO ARRAY LIST
+            categoriaProdutoList.add(categoriaProduto);
+
+        }
+
+        LOGGER.info("Finalizando importação...");
+
+        return iCategoriaProdutoRepository.saveAll(categoriaProdutoList);
+
     }
 }
 

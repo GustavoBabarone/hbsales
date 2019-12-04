@@ -19,7 +19,6 @@ public class CategoriaProdutoDTO {
         this.nome = nome;
     }
 
-    // ? ? ?
     public static CategoriaProdutoDTO of(CategoriaProduto categoriaProduto){
         return new CategoriaProdutoDTO(
 
@@ -65,7 +64,6 @@ public class CategoriaProdutoDTO {
     }
     /* GETTER & SETTER FIM */
 
-    // ? ? ?
     @Override
     public String toString() {
         return "CategoriaProdutoDTO{" +

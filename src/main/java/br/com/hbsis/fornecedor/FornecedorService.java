@@ -76,6 +76,7 @@ public class FornecedorService {
         Optional<Fornecedor> fornecedorExistenteOptional = this.iFornecedorRepository.findById(id);
 
         if(fornecedorExistenteOptional.isPresent()){
+
             Fornecedor fornecedorExistente = fornecedorExistenteOptional.get();
 
             LOGGER.info("Atualizando fornecedor... id: [{}]", fornecedorExistente.getId());
