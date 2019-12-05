@@ -2,7 +2,6 @@ package br.com.hbsis.fornecedor;
 
 import javax.persistence.*;
 
-
 /**
  * CLASSE RESPONSÁVEL PELO MAPEAMENTO DA ENTIDADE DO BANCO DE DADOS
  */
@@ -15,15 +14,15 @@ public class Fornecedor {
     private Long id;
     @Column(name = "razao_social", nullable = false, length = 100)
     private String razaoSocial;
-    @Column(name = "cnpj", unique = true, nullable = false, length = 18)
+    @Column(name = "cnpj", unique = true, nullable = false, length = 14)
     private String cnpj;
-    @Column(name = "nome_fantasia", unique = true, nullable = false, length = 50)
+    @Column(name = "nome_fantasia", unique = true, nullable = false, length = 100)
     private String nomeFantasia;
-    @Column(name = "endereco", nullable = false, length = 70)
+    @Column(name = "endereco", nullable = false, length = 100)
     private String endereco;
-    @Column(name = "telefone_contato", unique = true, nullable = false, length = 16)
+    @Column(name = "telefone_contato", unique = true, nullable = false, length = 13)
     private String telefoneContato;
-    @Column(name = "email_contato", unique = true, nullable = false, length = 60)
+    @Column(name = "email_contato", unique = true, nullable = false, length = 50)
     private String emailContato;
 
     /* GETTER */

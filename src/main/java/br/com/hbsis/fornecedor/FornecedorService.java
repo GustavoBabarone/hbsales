@@ -3,6 +3,7 @@ package br.com.hbsis.fornecedor;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,7 +18,10 @@ public class FornecedorService {
 
     private final IFornecedorRepository iFornecedorRepository;
 
-    public FornecedorService(IFornecedorRepository iFornecedorRepository) { this.iFornecedorRepository = iFornecedorRepository; }
+    @Autowired
+    public FornecedorService(IFornecedorRepository iFornecedorRepository) {
+        this.iFornecedorRepository = iFornecedorRepository;
+    }
 
     public FornecedorDTO save(FornecedorDTO fornecedorDTO){
 
@@ -43,10 +47,41 @@ public class FornecedorService {
 
         LOGGER.info("Validando fornecedor");
 
-        if(StringUtils.isEmpty(fornecedorDTO.getCnpj())){
-            throw new IllegalArgumentException("FornecedorDTO não deve ser nulo/vazio");
+        // VARIÁVEL DO TELEFONE INFORMADO
+        String telefone = fornecedorDTO.getTelefoneContato();
+
+        // CONDICIONAL DE TELEFONE TIPO CELULAR SOMENTE
+        if(telefone.charAt(5) != '9'){
+            throw new IllegalArgumentException("Informe apenas telefones celulares");
         }
 
+        if(telefone.length() == 9){
+            throw new IllegalArgumentException("Informe DDD e DDI");
+        }
+
+        if(StringUtils.isEmpty(fornecedorDTO.getRazaoSocial())){
+            throw new IllegalArgumentException("Razao Social não deve ser nulo/vazio");
+        }
+
+        if(StringUtils.isEmpty(fornecedorDTO.getCnpj())){
+            throw new IllegalArgumentException("Cnpj não deve ser nulo/vazio");
+        }
+
+        if(StringUtils.isEmpty(fornecedorDTO.getNomeFantasia())){
+            throw new IllegalArgumentException("Nome fantasia não deve ser nulo/vazio");
+        }
+
+        if(StringUtils.isEmpty(fornecedorDTO.getEndereco())){
+            throw new IllegalArgumentException("Endereço não deve ser nulo/vazio");
+        }
+
+        if(fornecedorDTO.getTelefoneContato() == null){
+            throw new IllegalArgumentException("Telefone não deve ser nulo");
+        }
+
+        if(StringUtils.isEmpty(fornecedorDTO.getEmailContato())){
+            throw new IllegalArgumentException("Email não deve ser nulo/vazio");
+        }
     }
 
     public FornecedorDTO findById(Long id){

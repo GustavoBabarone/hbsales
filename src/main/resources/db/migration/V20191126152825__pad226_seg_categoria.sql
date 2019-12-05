@@ -1,7 +1,7 @@
 create table seg_categorias
 (
     id BIGINT IDENTITY (1, 1)                            NOT NULL PRIMARY KEY,
-    codigo BIGINT                                        NOT NULL,
+    codigo VARCHAR(14)                                   NOT NULL,
     id_fornecedor BIGINT REFERENCES seg_fornecedores(id) NOT NULL,
     nome VARCHAR(70)                                     NOT NULL
 

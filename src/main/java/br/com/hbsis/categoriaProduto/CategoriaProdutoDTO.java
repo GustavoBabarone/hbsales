@@ -4,7 +4,7 @@ public class CategoriaProdutoDTO {
 
     /* ATRIBUTOS */
     private Long id;
-    private Long codigo;
+    private String codigo;
     private Long idFornecedor;
     private String nome;
 
@@ -12,7 +12,7 @@ public class CategoriaProdutoDTO {
     public CategoriaProdutoDTO() {
     }
 
-    public CategoriaProdutoDTO(Long id, Long codigo, Long idFornecedor, String nome) {
+    public CategoriaProdutoDTO(Long id, String codigo, Long idFornecedor, String nome) {
         this.id = id;
         this.codigo = codigo;
         this.idFornecedor = idFornecedor;
@@ -39,11 +39,11 @@ public class CategoriaProdutoDTO {
         this.id = id;
     }
 
-    public Long getCodigo() {
+    public String getCodigo() {
         return codigo;
     }
 
-    public void setCodigo(Long codigo) {
+    public void setCodigo(String codigo) {
         this.codigo = codigo;
     }
 

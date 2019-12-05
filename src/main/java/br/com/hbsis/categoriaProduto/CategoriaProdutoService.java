@@ -50,10 +50,25 @@ public class CategoriaProdutoService {
 
         // INSTANCIAR OBJETOS
         CategoriaProduto categoriaProduto = new CategoriaProduto();
-        categoriaProduto.setCodigo(categoriaProdutoDTO.getCodigo());
 
         //  OBTER fornecedorDTO PELO 'ID' ESPECÍFICO
         FornecedorDTO fornecedorDTO = fornecedorService.findById(categoriaProdutoDTO.getIdFornecedor());
+
+            // OBTER O CNPJ DO FORNECEDOR
+            String cnpj = fornecedorDTO.getCnpj();
+
+            // OBTER SOMENTE OS 4 ULTIMOS DIGITOS DO CNPJ
+            String cnpjProcessado = ultimoDigitoCnpj(cnpj);
+
+            // OBTER CODIGO INFORMADO PELO FORNECEDOR
+            String codigo = categoriaProdutoDTO.getCodigo();
+
+            String codigoComZero = validarCodigo(codigo);
+
+            // CONCATENAR CODIGO FINAL
+            String codigoProcessado = "CAT"+cnpjProcessado+codigoComZero;
+
+            categoriaProduto.setCodigo(codigoProcessado);
 
         // EXECUTANDO MÉTODO DE CONVERSÃO
         Fornecedor fornecedor = conversor(fornecedorDTO);
@@ -65,6 +80,35 @@ public class CategoriaProdutoService {
         categoriaProduto = this.iCategoriaProdutoRepository.save(categoriaProduto);
 
         return CategoriaProdutoDTO.of(categoriaProduto);
+
+    }
+
+    // VALIDAR CODIGO INFORMADO PELO FORNECEDOR
+    public String validarCodigo(String codigo){
+
+        String codigoComZero = "";
+
+        if(codigo.length() == 3 ){
+            codigoComZero = codigo;
+        }
+
+        if(codigo.length() == 2 ){
+            codigoComZero = "0"+codigo;
+        }
+
+        if(codigo.length() == 1 ){
+            codigoComZero = "00"+codigo;
+        }
+
+        return codigoComZero;
+    }
+
+    // MÉTODO DE OBTER SOMENTE OS 4 ÚLTIMOS DIGITOS DO CNPJ
+    public String ultimoDigitoCnpj(String cnpj){
+
+        String ultimosDigitos = cnpj.substring(cnpj.length() - 4);
+
+        return ultimosDigitos;
 
     }
 
@@ -91,12 +135,12 @@ public class CategoriaProdutoService {
             throw new IllegalArgumentException("CategoriaProdutoDTO não deve ser nulo");
         }
 
-        if (StringUtils.isEmpty(categoriaProdutoDTO.getId().toString())) {
-            throw new IllegalArgumentException("ID não deve ser nulo/vazio");
+        if (categoriaProdutoDTO.getIdFornecedor() == null) {
+            throw new IllegalArgumentException("ID não deve ser nulo");
         }
 
-        if (categoriaProdutoDTO.getCodigo() == null) {
-            throw new IllegalArgumentException("Código não deve ser nulo");
+        if (StringUtils.isEmpty(categoriaProdutoDTO.getCodigo())) {
+            throw new IllegalArgumentException("Código não deve ser nulo/vazio");
         }
 
         if (StringUtils.isEmpty(categoriaProdutoDTO.getNome())) {
@@ -192,7 +236,7 @@ public class CategoriaProdutoService {
 
                     // LINHAS COM AS INFORMAÇÕES
                     rows.getId().toString(),
-                    rows.getCodigo().toString(),
+                    rows.getCodigo(),
                     rows.getFornecedor().getId().toString(),
                     rows.getNome()});
         }
@@ -215,7 +259,7 @@ public class CategoriaProdutoService {
             // OBJETOS DAS CLASSES CategoriaProduto e Fornecedor
             CategoriaProduto categoriaProduto = new CategoriaProduto();
             categoriaProduto.setId(Long.parseLong(vetor[0]));
-            categoriaProduto.setCodigo(Long.parseLong(vetor[1]));
+            categoriaProduto.setCodigo(vetor[1]);
 
             // CONVERTANDO VARIÁVEL TIPO FornecedorDTO PARA Fornecedor
             Fornecedor fornecedor = new Fornecedor();

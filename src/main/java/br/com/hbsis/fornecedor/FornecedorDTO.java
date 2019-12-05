@@ -20,7 +20,8 @@ public class FornecedorDTO{
     public FornecedorDTO(){
     }
 
-    public FornecedorDTO(Long id, String razaoSocial, String cnpj, String nomeFantasia, String endereco, String telefoneContato, String emailContato){
+    public FornecedorDTO(Long id, String razaoSocial, String cnpj, String nomeFantasia,
+                         String endereco, String telefoneContato, String emailContato){
         this.id = id;
         this.razaoSocial = razaoSocial;
         this.cnpj = cnpj;
