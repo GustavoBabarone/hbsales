@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  *  CLASSE RESPONSÁVEL POR RECEBER AS REQUISIÇÕES EXTERNAS AO SISTEMA
@@ -57,4 +60,23 @@ public class ProdutoRest {
 
         this.produtoService.delete(id);
     }
+
+    // EXPORTAR PARA CSV - ATIVIDADE 9
+    @GetMapping("/exportarcsv")
+    public void exportarCSV(HttpServletResponse file) throws Exception {
+
+        LOGGER.info("Recebendo exportação para CSV...");
+
+        produtoService.findAll(file);
+    }
+
+    // IMPORTAR DE UM CSV - ATIVIDADE 10
+    @PostMapping("/importarcsv")
+    public void importarCSV(@RequestParam("file")MultipartFile file) throws Exception {
+
+        LOGGER.info("Recebendo importação de um CSV...");
+
+        produtoService.obterTudo(file);
+    }
+
 }
