@@ -26,7 +26,7 @@ public class CategoriaProduto {
     @JoinColumn(name = "id_fornecedor", referencedColumnName = "id", nullable = false)
     private Fornecedor fornecedor;
 
-    @Column(name = "nome", nullable = false, length = 70)
+    @Column(name = "nome", nullable = false, length = 50)
     private String nome;
 
     /* GETTER & SETTER */

@@ -3,6 +3,7 @@ package br.com.hbsis.categoriaProduto;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorService;
+import br.com.hbsis.fornecedor.IFornecedorRepository;
 import com.opencsv.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -15,7 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.rmi.server.ExportException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +25,6 @@ import java.util.Optional;
 /**
  * CLASSE RESPONSÁVEL PELO PROCESSAMENTO DA REGRA DE NEGÓCIO
  */
-
 @Service
 public class CategoriaProdutoService {
 
@@ -31,12 +32,14 @@ public class CategoriaProdutoService {
 
     private final ICategoriaProdutoRepository iCategoriaProdutoRepository;
     private final FornecedorService fornecedorService;
+    private final IFornecedorRepository iFornecedorRepository;
 
     /* CONTRUTOR */
     @Autowired
-    public CategoriaProdutoService(ICategoriaProdutoRepository iCategoriaProdutoRepository, FornecedorService fornecedorService) {
+    public CategoriaProdutoService(ICategoriaProdutoRepository iCategoriaProdutoRepository, FornecedorService fornecedorService, IFornecedorRepository iFornecedorRepository) {
         this.iCategoriaProdutoRepository = iCategoriaProdutoRepository;
         this.fornecedorService = fornecedorService;
+        this.iFornecedorRepository = iFornecedorRepository;
     }
 
     // MÉTODO DE CADASTRAMENTO DA CATEGORIA
@@ -68,6 +71,7 @@ public class CategoriaProdutoService {
             // CONCATENAR CODIGO FINAL
             String codigoProcessado = "CAT"+cnpjProcessado+codigoComZero;
 
+            // DEFINIR O CÓDIGO CONCATENADO
             categoriaProduto.setCodigo(codigoProcessado);
 
         // EXECUTANDO MÉTODO DE CONVERSÃO
@@ -136,7 +140,7 @@ public class CategoriaProdutoService {
         }
 
         if (categoriaProdutoDTO.getIdFornecedor() == null) {
-            throw new IllegalArgumentException("ID não deve ser nulo");
+            throw new IllegalArgumentException("ID do fornecedor não deve ser nulo");
         }
 
         if (StringUtils.isEmpty(categoriaProdutoDTO.getCodigo())) {
@@ -179,10 +183,26 @@ public class CategoriaProdutoService {
             LOGGER.debug("Payload: {}", categoriaProdutoDTO);
             LOGGER.debug("Categoria Existente: {}", categoriaProdutoExistente);
 
-            categoriaProdutoExistente.setCodigo(categoriaProdutoDTO.getCodigo());
-
             //  OBTER fornecedorDTO PELO 'ID' ESPECÍFICO
             FornecedorDTO fornecedorDTO = fornecedorService.findById(categoriaProdutoDTO.getIdFornecedor());
+
+                // OBTER O CNPJ DO FORNECEDOR
+                String cnpj = fornecedorDTO.getCnpj();
+
+                // OBTER SOMENTE OS 4 ULTIMOS DIGITOS DO CNPJ
+                String cnpjProcessado = ultimoDigitoCnpj(cnpj);
+
+                // OBTER CODIGO INFORMADO PELO FORNECEDOR
+                String codigo = categoriaProdutoDTO.getCodigo();
+
+                // ADICIONAR ZEROS A ESQUERDA
+                String codigoComZero = validarCodigo(codigo);
+
+                // CONCATENAR CODIGO FINAL
+                String codigoProcessado = "CAT"+cnpjProcessado+codigoComZero;
+
+                // DEFINIR O CÓDIGO CONCATENADO
+                categoriaProdutoExistente.setCodigo(codigoProcessado);
 
             // EXECUTANDO MÉTODO DE CONVERSÃO
             Fornecedor fornecedor = conversor(fornecedorDTO);
@@ -214,32 +234,53 @@ public class CategoriaProdutoService {
         // VARIÁVEL COM NOME DO ARQUIVO DO EXCEL
         String arquivoCSV = "categoriaProduto.csv";
 
-        //
         response.setContentType("text/csv");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivoCSV + "\"");
 
-        //
         PrintWriter writer = response.getWriter();
 
-        //
         ICSVWriter icsvWriter = new CSVWriterBuilder(writer).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
 
         // VETOR COM OS NOMES DAS COLUNAS NO EXCEL
-        String[] cabecalhoCSV = {"id", "codigo", "idFornecedor", "nome"};
+        String[] cabecalhoCSV = {"codigo", "nome", "razao_social", "cnpj"};
 
-        //
+        // ESCREVER O CABEÇALHO PRIMEIRO
         icsvWriter.writeNext(cabecalhoCSV);
 
         // LAÇO PARA PREENCHER AS INFORMAÇÕES
         for(CategoriaProduto rows : iCategoriaProdutoRepository.findAll()){
+
             icsvWriter.writeNext(new String[]{
 
                     // LINHAS COM AS INFORMAÇÕES
-                    rows.getId().toString(),
                     rows.getCodigo(),
-                    rows.getFornecedor().getId().toString(),
-                    rows.getNome()});
+                    rows.getNome(),
+                    rows.getFornecedor().getRazaoSocial(),
+                    mascaraFormatada(rows.getFornecedor().getCnpj()),
+
+            });
         }
+    }
+
+    // MÉTODO DE FORMATAR CNPJ PARA EXPORTAR PARA CSV - ATIVIDADE 3
+    public String mascaraFormatada(String cnpj){
+
+        /*String cnpjFormatado =  cnpj.charAt(0)+cnpj.charAt(1)+"."+
+                                cnpj.charAt(2)+cnpj.charAt(3)+cnpj.charAt(4)+"."+
+                                cnpj.charAt(5)+cnpj.charAt(6)+cnpj.charAt(7)+"/"+
+                                cnpj.charAt(8)+cnpj.charAt(9)+cnpj.charAt(10)+cnpj.charAt(11)+"-"+
+                                cnpj.charAt(12)+cnpj.charAt(13);*/
+
+        String cnpj1formador =  cnpj.substring(0, 2)+ "."+
+                                cnpj.substring(2, 5)+"."+
+                                cnpj.substring(5, 8)+ "/"+
+                                cnpj.substring(8, 12)+"-"+
+                                cnpj.substring(12, 14);
+
+        return cnpj1formador;
+
+
+        /*return cnpjFormatado;*/
     }
 
     // IMPORTAR DE UM CSV - ATIVIDADE 4
@@ -258,16 +299,21 @@ public class CategoriaProdutoService {
 
             // OBJETOS DAS CLASSES CategoriaProduto e Fornecedor
             CategoriaProduto categoriaProduto = new CategoriaProduto();
-            categoriaProduto.setId(Long.parseLong(vetor[0]));
-            categoriaProduto.setCodigo(vetor[1]);
 
-            // CONVERTANDO VARIÁVEL TIPO FornecedorDTO PARA Fornecedor
-            Fornecedor fornecedor = new Fornecedor();
-            FornecedorDTO fornecedorDTO = fornecedorService.findById(Long.parseLong(vetor[2]));
-            fornecedor = conversor(fornecedorDTO);
+            categoriaProduto.setCodigo(vetor[0]);
+            categoriaProduto.setNome(vetor[1]);
+            // vetor[2] = razão social -> não utilizada
 
-            categoriaProduto.setFornecedor(fornecedor);
-            categoriaProduto.setNome(vetor[3]);
+                // OBTER 'ID' DO CNPJ CADASTRADO DO EXCEL
+                // CONVERTANDO VARIÁVEL TIPO FornecedorDTO PARA Fornecedor
+                Fornecedor fornecedor = new Fornecedor();
+
+                String cnpjDesformatado = desformatarCnpj(vetor[3]);
+
+                FornecedorDTO fornecedorDTO = fornecedorService.findByCnpj(cnpjDesformatado);
+                fornecedor = conversor(fornecedorDTO);
+
+                categoriaProduto.setFornecedor(fornecedor);
 
             // ADICIONAR OBJ CategoriaProduto NO ARRAY LIST
             categoriaProdutoList.add(categoriaProduto);
@@ -277,6 +323,18 @@ public class CategoriaProdutoService {
         LOGGER.info("Finalizando importação...");
 
         return iCategoriaProdutoRepository.saveAll(categoriaProdutoList);
+
+    }
+
+    public String desformatarCnpj(String cnpj) {
+
+        String cnpjDesformatado =   cnpj.charAt(0)+""+cnpj.charAt(1)+
+                                    cnpj.charAt(3)+cnpj.charAt(4)+cnpj.charAt(5)+
+                                    cnpj.charAt(7)+cnpj.charAt(8)+cnpj.charAt(9)+
+                                    cnpj.charAt(11)+cnpj.charAt(12)+cnpj.charAt(13)+cnpj.charAt(14)+
+                                    cnpj.charAt(16)+cnpj.charAt(17);
+
+        return cnpjDesformatado;
 
     }
 }

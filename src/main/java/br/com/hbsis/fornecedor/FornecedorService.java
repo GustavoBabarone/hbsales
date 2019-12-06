@@ -141,4 +141,21 @@ public class FornecedorService {
         this.iFornecedorRepository.deleteById(id);
     }
 
+    // ENCONTRAR PELO CNPJ ESPECÍFICO
+    public FornecedorDTO findByCnpj(String cnpj){
+
+        Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findByCnpj(cnpj);
+
+        if(fornecedorOptional.isPresent()){
+            Fornecedor fornecedor = fornecedorOptional.get();
+            FornecedorDTO fornecedorDTO = FornecedorDTO.of(fornecedor);
+
+            return fornecedorDTO;
+        }
+
+        String format = String.format("Cnpj %s não existe", cnpj);
+
+        throw new IllegalArgumentException(format);
+    }
+
 }
