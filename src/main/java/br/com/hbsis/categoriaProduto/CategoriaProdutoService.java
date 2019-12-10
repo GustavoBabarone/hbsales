@@ -161,9 +161,9 @@ public class CategoriaProdutoService {
             CategoriaProduto categoriaProduto = categoriaProdutoOptional.get();
             CategoriaProdutoDTO categoriaProdutoDTO = CategoriaProdutoDTO.of(categoriaProduto);
 
-            return categoriaProdutoDTO;
+        return categoriaProdutoDTO;
 
-        }
+    }
 
         String format = String.format("Id %s não existe", id);
 
@@ -336,6 +336,23 @@ public class CategoriaProdutoService {
 
         return cnpjDesformatado;
 
+    }
+
+    public CategoriaProdutoDTO findByCodigo(String codigo) {
+
+        Optional<CategoriaProduto> categoriaProdutoOptional = this.iCategoriaProdutoRepository.findByCodigo(codigo);
+
+        if (categoriaProdutoOptional.isPresent()) {
+            CategoriaProduto categoriaProduto = categoriaProdutoOptional.get();
+            CategoriaProdutoDTO categoriaProdutoDTO = CategoriaProdutoDTO.of(categoriaProduto);
+
+            return categoriaProdutoDTO;
+
+        }
+
+        String format = String.format("Código %s não existe", codigo);
+
+        throw new IllegalArgumentException(format);
     }
 }
 

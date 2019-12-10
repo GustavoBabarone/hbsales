@@ -1,25 +1,25 @@
 package br.com.hbsis.produto;
 
-import javafx.beans.binding.FloatExpression;
-
 public class ProdutoDTO {
 
     /* ATRIBUTOS */
     private Long id;
-    private Long codigo;
+    private String codigo;
     private String nome;
-    private String preco;
+    private Double preco;
     private Long idLinha;
     private Long unidadeCaixa;
-    private Float pesoUnidade;
+    private Double pesoUnidade;
+    private String unidadeDePeso;
     private String validade;
 
     /* CONSTRUTORES */
     public ProdutoDTO() {
     }
 
-    public ProdutoDTO(Long id, Long codigo, String nome, String preco,
-                      Long idLinha, Long unidadeCaixa, Float pesoUnidade, String validade) {
+    public ProdutoDTO(Long id, String codigo, String nome, Double preco,
+                      Long idLinha, Long unidadeCaixa, Double pesoUnidade,
+                      String unidadeDePeso, String validade) {
         this.id = id;
         this.codigo = codigo;
         this.nome = nome;
@@ -27,6 +27,7 @@ public class ProdutoDTO {
         this.idLinha = idLinha;
         this.unidadeCaixa = unidadeCaixa;
         this.pesoUnidade = pesoUnidade;
+        this.unidadeDePeso = unidadeDePeso;
         this.validade = validade;
     }
 
@@ -40,6 +41,7 @@ public class ProdutoDTO {
                 produto.getLinhaCategoria().getId(),
                 produto.getUnidadeCaixa(),
                 produto.getPesoUnidade(),
+                produto.getUnidadeDePeso(),
                 produto.getValidade()
         );
     }
@@ -53,11 +55,11 @@ public class ProdutoDTO {
         this.id = id;
     }
 
-    public Long getCodigo() {
+    public String getCodigo() {
         return codigo;
     }
 
-    public void setCodigo(Long codigo) {
+    public void setCodigo(String codigo) {
         this.codigo = codigo;
     }
 
@@ -69,11 +71,11 @@ public class ProdutoDTO {
         this.nome = nome;
     }
 
-    public String getPreco() {
+    public Double getPreco() {
         return preco;
     }
 
-    public void setPreco(String preco) {
+    public void setPreco(Double preco) {
         this.preco = preco;
     }
 
@@ -93,11 +95,11 @@ public class ProdutoDTO {
         this.unidadeCaixa = unidadeCaixa;
     }
 
-    public Float getPesoUnidade() {
+    public Double getPesoUnidade() {
         return pesoUnidade;
     }
 
-    public void setPesoUnidade(Float pesoUnidade) {
+    public void setPesoUnidade(Double pesoUnidade) {
         this.pesoUnidade = pesoUnidade;
     }
 
@@ -109,16 +111,25 @@ public class ProdutoDTO {
         this.validade = validade;
     }
 
+    public String getUnidadeDePeso() {
+        return unidadeDePeso;
+    }
+
+    public void setUnidadeDePeso(String unidadeDePeso) {
+        this.unidadeDePeso = unidadeDePeso;
+    }
+
     @Override
     public String toString() {
         return "ProdutoDTO{" +
                 "id=" + id +
-                ", codigo=" + codigo +
+                ", codigo='" + codigo + '\'' +
                 ", nome='" + nome + '\'' +
-                ", preco='" + preco + '\'' +
+                ", preco=" + preco +
                 ", idLinha=" + idLinha +
                 ", unidadeCaixa=" + unidadeCaixa +
                 ", pesoUnidade=" + pesoUnidade +
+                ", unidadeDePeso='" + unidadeDePeso + '\'' +
                 ", validade='" + validade + '\'' +
                 '}';
     }

@@ -4,19 +4,20 @@ import br.com.hbsis.linhaCategoria.LinhaCategoria;
 import br.com.hbsis.linhaCategoria.LinhaCategoriaDTO;
 import br.com.hbsis.linhaCategoria.LinhaCategoriaService;
 import com.opencsv.*;
+import javafx.beans.binding.DoubleExpression;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.spi.LoggerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import sun.awt.util.IdentityLinkedList;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Max;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +49,13 @@ public class ProdutoService {
         LOGGER.debug("Produto: {}", produtoDTO);
 
         Produto produto = new Produto();
-        produto.setCodigo(produtoDTO.getCodigo());
+
+            // ADICIONAR ZEROS E LETRAS MAUISCULAS
+            String codigo = produtoDTO.getCodigo();
+            String codigoUpperCase = codigo.toUpperCase();
+            String codigoProcessado = codigoZerosEsquerda(codigoUpperCase);
+            produto.setCodigo(codigoProcessado); // VALOR FINAL
+
         produto.setNome(produtoDTO.getNome());
         produto.setPreco(produtoDTO.getPreco());
 
@@ -60,13 +67,34 @@ public class ProdutoService {
 
         produto.setLinhaCategoria(linhaCategoria);
         produto.setUnidadeCaixa(produtoDTO.getUnidadeCaixa());
+
         produto.setPesoUnidade(produtoDTO.getPesoUnidade());
+
+        String unidadeDePeso = produtoDTO.getUnidadeDePeso();
+
+        if(unidadeDePeso.equals("mg") || unidadeDePeso.equals("g") || unidadeDePeso.equals("Kg")){
+
+            produto.setUnidadeDePeso(unidadeDePeso);
+            LOGGER.info("Unidade em "+unidadeDePeso+" está certa");
+
+        }else{
+            throw new IllegalArgumentException("Informe peso em 'mg' 'g' 'Kg'");
+        }
+
         produto.setValidade(produtoDTO.getValidade());
 
         produto = this.iProdutoRepository.save(produto);
 
         return ProdutoDTO.of(produto);
 
+    }
+
+    // ADICIONAR ZEROS A ESQUERDA
+    public String codigoZerosEsquerda(String codigo){
+
+        String codigoProcessado = StringUtils.leftPad(codigo, 10, "0");
+
+        return codigoProcessado;
     }
 
     // MÉTODO DE VALIDAÇÃO DOS CAMPOS DO PRODUTO
@@ -91,8 +119,8 @@ public class ProdutoService {
             throw new IllegalArgumentException("Nome não deve ser nulo/vazio");
         }
 
-        if(StringUtils.isEmpty(produtoDTO.getPreco())){
-            throw new IllegalArgumentException("Preco não deve ser nulo/vazio");
+        if(produtoDTO.getPreco() == null){
+            throw new IllegalArgumentException("Preco não deve ser nulo");
         }
 
         if(produtoDTO.getIdLinha() == null){
@@ -105,6 +133,10 @@ public class ProdutoService {
 
         if(produtoDTO.getPesoUnidade() == null){
             throw new IllegalArgumentException("Peso por unidade não deve ser nulo");
+        }
+
+        if(StringUtils.isEmpty(produtoDTO.getUnidadeDePeso())){
+            throw new IllegalArgumentException("Unidade de peso não deve ser nulo/vazio");
         }
 
         if(StringUtils.isEmpty(produtoDTO.getValidade())){
@@ -172,9 +204,9 @@ public class ProdutoService {
 
                     // LINHAS COM AS INFORMAÇÕES
                     rows.getId().toString(),
-                    rows.getCodigo().toString(),
+                    rows.getCodigo(),
                     rows.getNome(),
-                    rows.getPreco(),
+                    rows.getPreco().toString(),
                     rows.getLinhaCategoria().getId().toString(),
                     rows.getUnidadeCaixa().toString(),
                     rows.getPesoUnidade().toString(),
@@ -201,9 +233,9 @@ public class ProdutoService {
             // OBJETOS DAS CLASSES Produto e LinhaCategoria
             Produto produto = new Produto();
             produto.setId(Long.parseLong(vetor[0]));
-            produto.setCodigo(Long.parseLong(vetor[1]));
+            produto.setCodigo(vetor[1]);
             produto.setNome(vetor[2]);
-            produto.setPreco(vetor[3]);
+            produto.setPreco(Double.parseDouble(vetor[3]));
 
             /* CONVERTENDO VARIÁVEL */
             LinhaCategoria linhaCategoria = new LinhaCategoria();
@@ -214,7 +246,7 @@ public class ProdutoService {
             /* FIM DA CONVERSÃO */
 
             produto.setUnidadeCaixa(Long.parseLong(vetor[5]));
-            produto.setPesoUnidade(Float.parseFloat(vetor[6]));
+            produto.setPesoUnidade(Double.parseDouble(vetor[6]));
             produto.setValidade(vetor[7]);
 
             // ADICIONANDO NO ARRYLIST
@@ -251,6 +283,18 @@ public class ProdutoService {
             produtoExistente.setLinhaCategoria(linhaCategoria);
             produtoExistente.setUnidadeCaixa(produtoDTO.getUnidadeCaixa());
             produtoExistente.setPesoUnidade(produtoDTO.getPesoUnidade());
+
+            String unidadeDePeso = produtoDTO.getUnidadeDePeso();
+
+            if(unidadeDePeso.equals("mg") || unidadeDePeso.equals("g") || unidadeDePeso.equals("Kg")){
+
+                produtoExistente.setUnidadeDePeso(unidadeDePeso);
+                LOGGER.info("Unidade em "+unidadeDePeso+" está certa");
+
+            }else{
+                throw new IllegalArgumentException("Informe peso em 'mg' 'g' 'Kg'");
+            }
+
             produtoExistente.setValidade(produtoDTO.getValidade());
 
             produtoExistente = this.iProdutoRepository.save(produtoExistente);

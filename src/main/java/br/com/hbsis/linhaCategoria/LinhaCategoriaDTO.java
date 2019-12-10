@@ -4,7 +4,7 @@ public class LinhaCategoriaDTO {
 
     /* ATRIBUTOS */
     private Long id;
-    private Long codigoLinha;
+    private String codigoLinha;
     private Long idCategoria;
     private String nome;
 
@@ -12,7 +12,7 @@ public class LinhaCategoriaDTO {
     public LinhaCategoriaDTO() {
     }
 
-    public LinhaCategoriaDTO(Long id, Long codigoLinha, Long idCategoria, String nome) {
+    public LinhaCategoriaDTO(Long id, String codigoLinha, Long idCategoria, String nome) {
         this.id = id;
         this.codigoLinha = codigoLinha;
         this.idCategoria = idCategoria;
@@ -38,11 +38,11 @@ public class LinhaCategoriaDTO {
         this.id = id;
     }
 
-    public Long getCodigoLinha() {
+    public String getCodigoLinha() {
         return codigoLinha;
     }
 
-    public void setCodigoLinha(Long codigoLinha) {
+    public void setCodigoLinha(String codigoLinha) {
         this.codigoLinha = codigoLinha;
     }
 

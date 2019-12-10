@@ -3,8 +3,8 @@ package br.com.hbsis.linhaCategoria;
 import br.com.hbsis.categoriaProduto.CategoriaProduto;
 import br.com.hbsis.categoriaProduto.CategoriaProdutoDTO;
 import br.com.hbsis.categoriaProduto.CategoriaProdutoService;
+import br.com.hbsis.categoriaProduto.ICategoriaProdutoRepository;
 import com.opencsv.*;
-import javafx.print.Printer;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +30,14 @@ public class LinhaCategoriaService {
 
     private final ILinhaCategoriaRepository iLinhaCategoriaRepository;
     private final CategoriaProdutoService categoriaProdutoService;
+    private final ICategoriaProdutoRepository categoriaProdutoRepository;
 
     /* CONSTRUTOR */
     @Autowired
-    public LinhaCategoriaService(ILinhaCategoriaRepository iLinhaCategoriaRepository, CategoriaProdutoService categoriaProdutoService) {
+    public LinhaCategoriaService(ILinhaCategoriaRepository iLinhaCategoriaRepository, CategoriaProdutoService categoriaProdutoService, ICategoriaProdutoRepository categoriaProdutoRepository) {
         this.iLinhaCategoriaRepository = iLinhaCategoriaRepository;
         this.categoriaProdutoService = categoriaProdutoService;
+        this.categoriaProdutoRepository = categoriaProdutoRepository;
     }
 
     // MÉTODO PARA SALVAR A LINHA DE CATEGORIA
@@ -48,7 +50,12 @@ public class LinhaCategoriaService {
 
         // INSTANCIAR OBJETOS
         LinhaCategoria linhaCategoria = new LinhaCategoria();
-        linhaCategoria.setCodigoLinha(linhaCategoriaDTO.getCodigoLinha());
+
+            String codigo = linhaCategoriaDTO.getCodigoLinha();
+            String codigoUpperCase = codigo.toUpperCase();
+            String codigoProcessado = codigoZerosEsquerda(codigoUpperCase);
+
+            linhaCategoria.setCodigoLinha(codigoProcessado);
 
         /* CONVERTER CategoriaDTO PARA Categoria */
         CategoriaProdutoDTO categoriaProdutoDTO = categoriaProdutoService.findById(linhaCategoriaDTO.getId());
@@ -61,6 +68,14 @@ public class LinhaCategoriaService {
         linhaCategoria = this.iLinhaCategoriaRepository.save(linhaCategoria);
 
         return LinhaCategoriaDTO.of(linhaCategoria);
+    }
+
+    // ADICIONAR ZEROS A ESQUERDA
+    public String codigoZerosEsquerda(String codigo){
+
+        String codigoProcessado = StringUtils.leftPad(codigo, 10, "0");
+
+        return codigoProcessado;
     }
 
     // MÉTODO DE VALIDAR OBJ DE LINHA DE CATEGORIA
@@ -131,7 +146,11 @@ public class LinhaCategoriaService {
             LOGGER.debug("Payload: {}", linhaCategoriaDTO);
             LOGGER.debug("Linha de categoria existente: {}", linhaCategoriaExistente);
 
-            linhaCategoriaExistente.setCodigoLinha(linhaCategoriaDTO.getCodigoLinha());
+            String codigo = linhaCategoriaDTO.getCodigoLinha();
+            String codigoUpperCase = codigo.toUpperCase();
+            String codigoProcessado = codigoZerosEsquerda(codigoUpperCase);
+
+            linhaCategoriaExistente.setCodigoLinha(codigoProcessado);
 
             /* CONVERSÃO */
             CategoriaProdutoDTO categoriaProdutoDTO = categoriaProdutoService.findById(linhaCategoriaDTO.getIdCategoria());
@@ -172,7 +191,7 @@ public class LinhaCategoriaService {
         ICSVWriter icsvWriter = new CSVWriterBuilder(writer).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
 
         // VEOTR COM OS NOMES DAS COLUNAS
-        String[] cabecalhoCSV = {"id", "codigo_linha", "id_categoria", "nome"};
+        String[] cabecalhoCSV = {"codigo_linha", "nome_linha", "codigo_categoria", "nome_categoria"};
 
         // ESCREVER O CABEÇALHO
         icsvWriter.writeNext(cabecalhoCSV);
@@ -183,10 +202,10 @@ public class LinhaCategoriaService {
             icsvWriter.writeNext(new String[]{
 
                     // LINHA COM AS INFOS
-                    rows.getId().toString(),
-                    rows.getCodigoLinha().toString(),
-                    rows.getCategoriaProduto().getId().toString(),
-                    rows.getNome()
+                    rows.getCodigoLinha(),
+                    rows.getNome(),
+                    rows.getCategoriaProduto().getCodigo(),
+                    rows.getCategoriaProduto().getNome()
             });
         }
     }
@@ -207,17 +226,17 @@ public class LinhaCategoriaService {
 
             // OBJETOS DAS CLASSES LinhaCategoria e CategoriaProduto
             LinhaCategoria linhaCategoria = new LinhaCategoria();
-            linhaCategoria.setId(Long.parseLong(vetor[0]));
-            linhaCategoria.setCodigoLinha(Long.parseLong(vetor[1]));
+
+            linhaCategoria.setCodigoLinha(vetor[0]);
 
             /* CONVERTER VARIÁVEL TIPO LinhaCategoriaDTO PARA LinhaCategoria */
             CategoriaProduto categoriaProduto = new CategoriaProduto();
-            CategoriaProdutoDTO categoriaProdutoDTO = categoriaProdutoService.findById(Long.parseLong(vetor[2]));
+            CategoriaProdutoDTO categoriaProdutoDTO = this.categoriaProdutoService.findByCodigo(vetor[2]);
             categoriaProduto = conversor(categoriaProdutoDTO);
             /* FIM DA CONVERSÃO */
 
             linhaCategoria.setCategoriaProduto(categoriaProduto);
-            linhaCategoria.setNome(vetor[3]);
+            linhaCategoria.setNome(vetor[1]);
 
             // ADICIONAR OBJ LinhaCategoria NO ARRAY LIST
             linhaCategoriaList.add(linhaCategoria);
