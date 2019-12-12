@@ -1,10 +1,13 @@
 package br.com.hbsis.produto;
 
+import br.com.hbsis.linhaCategoria.ILinhaCategoriaRepository;
 import br.com.hbsis.linhaCategoria.LinhaCategoria;
 import br.com.hbsis.linhaCategoria.LinhaCategoriaDTO;
 import br.com.hbsis.linhaCategoria.LinhaCategoriaService;
 import com.opencsv.*;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.DoubleExpression;
+import net.bytebuddy.asm.Advice;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +16,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sun.awt.util.IdentityLinkedList;
+import sun.java2d.pipe.SpanShapeRenderer;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.text.DecimalFormat;
+import java.text.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,13 +39,17 @@ public class ProdutoService {
 
     private final IProdutoRepository iProdutoRepository;
     private final LinhaCategoriaService linhaCategoriaService;
+    private final ILinhaCategoriaRepository iLinhaCategoriaRepository;
 
     /* CONSTRUTOR */
     @Autowired
-    public ProdutoService(IProdutoRepository iProdutoRepository, LinhaCategoriaService linhaCategoriaService) {
+    public ProdutoService(IProdutoRepository iProdutoRepository, LinhaCategoriaService linhaCategoriaService, ILinhaCategoriaRepository iLinhaCategoriaRepository) {
         this.iProdutoRepository = iProdutoRepository;
         this.linhaCategoriaService = linhaCategoriaService;
+        this.iLinhaCategoriaRepository = iLinhaCategoriaRepository;
     }
+
+    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 
     // MÉTODO DE CADASTRAMENTO DO PRODUTO
     public ProdutoDTO save(ProdutoDTO produtoDTO){
@@ -50,11 +61,14 @@ public class ProdutoService {
 
         Produto produto = new Produto();
 
-            // ADICIONAR ZEROS E LETRAS MAUISCULAS
-            String codigo = produtoDTO.getCodigo();
-            String codigoUpperCase = codigo.toUpperCase();
-            String codigoProcessado = codigoZerosEsquerda(codigoUpperCase);
-            produto.setCodigo(codigoProcessado); // VALOR FINAL
+        // ADICIONAR ZEROS E LETRAS MAUISCULAS
+        String codigo = produtoDTO.getCodigo();
+        String codigoUpperCase = codigo.toUpperCase();
+        String codigoProcessado = codigoZerosEsquerda(codigoUpperCase);
+
+        // int conatdor = findByCodigo(codigoProcessado); // VALIDANDO CÓDIGO
+
+        produto.setCodigo(codigoProcessado); // VALOR FINAL
 
         produto.setNome(produtoDTO.getNome());
         produto.setPreco(produtoDTO.getPreco());
@@ -72,13 +86,13 @@ public class ProdutoService {
 
         String unidadeDePeso = produtoDTO.getUnidadeDePeso();
 
-        if(unidadeDePeso.equals("mg") || unidadeDePeso.equals("g") || unidadeDePeso.equals("Kg")){
+        if(unidadeDePeso.equals("mg") || unidadeDePeso.equals("g") || unidadeDePeso.equals("Kg") ||
+           unidadeDePeso.equals("Mg") || unidadeDePeso.equals("kg")){
 
             produto.setUnidadeDePeso(unidadeDePeso);
-            LOGGER.info("Unidade em "+unidadeDePeso+" está certa");
 
         }else{
-            throw new IllegalArgumentException("Informe peso em 'mg' 'g' 'Kg'");
+            throw new IllegalArgumentException("Informe peso em 'mg' 'g' ou 'Kg'");
         }
 
         produto.setValidade(produtoDTO.getValidade());
@@ -139,7 +153,7 @@ public class ProdutoService {
             throw new IllegalArgumentException("Unidade de peso não deve ser nulo/vazio");
         }
 
-        if(StringUtils.isEmpty(produtoDTO.getValidade())){
+        if(produtoDTO.getValidade() == null){
             throw new IllegalArgumentException("Validade não deve ser nula");
         }
     }
@@ -169,10 +183,7 @@ public class ProdutoService {
         String format = String.format("Id %s não existe", id);
 
         throw new IllegalArgumentException(format);
-
     }
-
-    // TESTE
 
     public void delete(Long id){
 
@@ -194,7 +205,8 @@ public class ProdutoService {
 
         ICSVWriter icsvWriter = new CSVWriterBuilder(writer).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
 
-        String[] cabecalhoCSV = {"id", "codigo", "nome", "preco", "id_linha", "unidade_caixa", "peso_unidade", "validade"};
+        String[] cabecalhoCSV = {"codigo", "nome", "preco", "unidade_caixa", "peso_unidade", "validade",
+                "codigo_linha", "nome_linha", "codigo_categoria", "nome_categoria", "cnpj_fornecedor", "razao_social_fornecedor"};
 
         icsvWriter.writeNext(cabecalhoCSV);
 
@@ -202,18 +214,68 @@ public class ProdutoService {
 
             icsvWriter.writeNext(new String[]{
 
-                    // LINHAS COM AS INFORMAÇÕES
-                    rows.getId().toString(),
-                    rows.getCodigo(),
-                    rows.getNome(),
-                    rows.getPreco().toString(),
-                    rows.getLinhaCategoria().getId().toString(),
-                    rows.getUnidadeCaixa().toString(),
-                    rows.getPesoUnidade().toString(),
-                    rows.getValidade()
+                // LINHAS COM AS INFORMAÇÕES
+                rows.getCodigo(),
+                rows.getNome(),
+
+                formatarPreco(rows.getPreco()), // PREÇO FORMATADO
+
+                rows.getUnidadeCaixa().toString(),
+
+                formatarPeso(rows.getPesoUnidade(), rows.getUnidadeDePeso()), // PESO FORMATADO
+                formatarValidade(rows.getValidade()), // VALIDADE FORMATADA
+
+                rows.getLinhaCategoria().getCodigoLinha(),
+                rows.getLinhaCategoria().getNome(),
+                rows.getLinhaCategoria().getCategoriaProduto().getCodigo(),
+                rows.getLinhaCategoria().getCategoriaProduto().getNome(),
+
+                formatarCnpj(rows.getLinhaCategoria().getCategoriaProduto().getFornecedor().getCnpj()), // CNPJ FORMATADO
+
+                rows.getLinhaCategoria().getCategoriaProduto().getFornecedor().getRazaoSocial()
             });
         }
+    }
 
+    // FORMATAR PREÇO PARA EXPORTAR PARA CSV
+    public String formatarPreco(Double preco){
+
+        String precoFormatado = "R$"+preco;
+
+        return precoFormatado;
+    }
+
+    // FORMATAR PESO PARA EXPORTAR PARA CSV
+    public String formatarPeso(Double peso, String unidadePeso){
+
+        String pesoFormatado = peso+""+unidadePeso;
+
+        return pesoFormatado;
+    }
+
+    // FORMATAR CNPJ PARA EXPORTAR PARA CSV
+    public String formatarCnpj(String cnpj){
+
+        String cnpjFormado =    cnpj.substring(0, 2)+ "."+
+                                cnpj.substring(2, 5)+"."+
+                                cnpj.substring(5, 8)+ "/"+
+                                cnpj.substring(8, 12)+"-"+
+                                cnpj.substring(12, 14);
+
+        return cnpjFormado;
+    }
+
+    // FORMATAR VALIDADE PARA EXPORTAR PARA CSV
+    public String formatarValidade(Date validade) {
+
+        String validadeRecebida = String.valueOf(validade);
+
+        String ano = ""+validadeRecebida.charAt(0)+validadeRecebida.charAt(1)+validadeRecebida.charAt(2)+validadeRecebida.charAt(3);
+        String mes = ""+validadeRecebida.charAt(5)+validadeRecebida.charAt(6);
+        String dia = ""+validadeRecebida.charAt(8)+validadeRecebida.charAt(9);
+        String validadeFormatada = dia+"/"+mes+"/"+ano;
+
+        return validadeFormatada;
     }
 
     // IMPORTAR DE UM CSV - ATIVIDADE 10
@@ -232,22 +294,32 @@ public class ProdutoService {
 
             // OBJETOS DAS CLASSES Produto e LinhaCategoria
             Produto produto = new Produto();
-            produto.setId(Long.parseLong(vetor[0]));
-            produto.setCodigo(vetor[1]);
-            produto.setNome(vetor[2]);
-            produto.setPreco(Double.parseDouble(vetor[3]));
+            produto.setCodigo(vetor[0]);
+            produto.setNome(vetor[1]);
+            produto.setPreco(Double.parseDouble(vetor[2].replace("R", "").replace("$", "").replaceAll(",", ".")));
 
             /* CONVERTENDO VARIÁVEL */
             LinhaCategoria linhaCategoria = new LinhaCategoria();
-            LinhaCategoriaDTO linhaCategoriaDTO = linhaCategoriaService.findById(Long.parseLong(vetor[4]));
+            LinhaCategoriaDTO linhaCategoriaDTO = linhaCategoriaService.findByCodigo(vetor[6]);
             linhaCategoria = converter(linhaCategoriaDTO);
 
             produto.setLinhaCategoria(linhaCategoria);
             /* FIM DA CONVERSÃO */
 
-            produto.setUnidadeCaixa(Long.parseLong(vetor[5]));
-            produto.setPesoUnidade(Double.parseDouble(vetor[6]));
-            produto.setValidade(vetor[7]);
+            produto.setUnidadeCaixa(Long.parseLong(vetor[3]));
+            produto.setPesoUnidade(Double.parseDouble(vetor[4].replace("m", "").replace("g", "").replace("k", "").replace("K", "").replaceAll(",", "")));
+
+            String validadeCSV = vetor[5];
+            String dataSemBarra = validadeCSV.replaceAll("/", "");
+            String dia = ""+dataSemBarra.charAt(0)+dataSemBarra.charAt(1);
+            String mes = ""+dataSemBarra.charAt(2)+dataSemBarra.charAt(3);
+            String ano = ""+dataSemBarra.charAt(4)+dataSemBarra.charAt(5)+dataSemBarra.charAt(6)+dataSemBarra.charAt(7);
+            String validadePadrao = ano+"-"+mes+"-"+dia;
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            Date data = format.parse(validadePadrao);
+            produto.setValidade(data);
+
+            produto.setUnidadeDePeso(vetor[4].replaceAll("\\d", "").replace(".", ""));
 
             // ADICIONANDO NO ARRYLIST
             produtoList.add(produto);
@@ -271,7 +343,12 @@ public class ProdutoService {
             LOGGER.debug("Payload: {}", produtoDTO);
             LOGGER.debug("Produto existente: {}", produtoExistente);
 
-            produtoExistente.setCodigo(produtoDTO.getCodigo());
+            // ADICIONAR ZEROS E LETRAS MAUISCULAS
+            String codigo = produtoDTO.getCodigo();
+            String codigoUpperCase = codigo.toUpperCase();
+            String codigoProcessado = codigoZerosEsquerda(codigoUpperCase);
+            produtoExistente.setCodigo(codigoProcessado); // VALOR FINAL
+
             produtoExistente.setNome(produtoDTO.getNome());
             produtoExistente.setPreco(produtoDTO.getPreco());
 
@@ -286,13 +363,13 @@ public class ProdutoService {
 
             String unidadeDePeso = produtoDTO.getUnidadeDePeso();
 
-            if(unidadeDePeso.equals("mg") || unidadeDePeso.equals("g") || unidadeDePeso.equals("Kg")){
+            if(unidadeDePeso.equals("mg") || unidadeDePeso.equals("g") || unidadeDePeso.equals("Kg") ||
+                    unidadeDePeso.equals("Mg") || unidadeDePeso.equals("kg")){
 
                 produtoExistente.setUnidadeDePeso(unidadeDePeso);
-                LOGGER.info("Unidade em "+unidadeDePeso+" está certa");
 
             }else{
-                throw new IllegalArgumentException("Informe peso em 'mg' 'g' 'Kg'");
+                throw new IllegalArgumentException("Informe peso em 'mg' 'g' ou 'Kg'");
             }
 
             produtoExistente.setValidade(produtoDTO.getValidade());

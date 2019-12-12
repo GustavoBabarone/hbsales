@@ -3,6 +3,7 @@ package br.com.hbsis.produto;
 import br.com.hbsis.linhaCategoria.LinhaCategoria;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity // DEFINIR NOME DA TABELA QUE CORRESPONDE NO BANCO DE DADOS
 @Table(name = "seg_produtos")
@@ -35,7 +36,7 @@ public class Produto {
     private String unidadeDePeso;
 
     @Column(name = "validade", unique = false, nullable = false, length = 10)
-    private String validade;
+    private Date validade;
 
     /* GETTER & SETTER */
     public Long getId() {
@@ -102,11 +103,11 @@ public class Produto {
         this.unidadeDePeso = unidadeDePeso;
     }
 
-    public String getValidade() {
+    public Date getValidade() {
         return validade;
     }
 
-    public void setValidade(String validade) {
+    public void setValidade(Date validade) {
         this.validade = validade;
     }
 

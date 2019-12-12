@@ -186,19 +186,11 @@ public class CategoriaProdutoService {
             //  OBTER fornecedorDTO PELO 'ID' ESPECÍFICO
             FornecedorDTO fornecedorDTO = fornecedorService.findById(categoriaProdutoDTO.getIdFornecedor());
 
-                // OBTER O CNPJ DO FORNECEDOR
+                // PROCESSO DE CONCATENAÇÃO DO CÓDIGO
                 String cnpj = fornecedorDTO.getCnpj();
-
-                // OBTER SOMENTE OS 4 ULTIMOS DIGITOS DO CNPJ
                 String cnpjProcessado = ultimoDigitoCnpj(cnpj);
-
-                // OBTER CODIGO INFORMADO PELO FORNECEDOR
                 String codigo = categoriaProdutoDTO.getCodigo();
-
-                // ADICIONAR ZEROS A ESQUERDA
                 String codigoComZero = validarCodigo(codigo);
-
-                // CONCATENAR CODIGO FINAL
                 String codigoProcessado = "CAT"+cnpjProcessado+codigoComZero;
 
                 // DEFINIR O CÓDIGO CONCATENADO

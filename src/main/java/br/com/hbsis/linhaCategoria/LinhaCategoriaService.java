@@ -246,6 +246,23 @@ public class LinhaCategoriaService {
 
         return iLinhaCategoriaRepository.saveAll(linhaCategoriaList);
     }
+
+    // OBTER DADOS VIA CÓDIGO DA LINHA DE CATEGORIA
+    public LinhaCategoriaDTO findByCodigo(String codigoLinha) {
+
+        Optional<LinhaCategoria> linhaCategoriaOptional = this.iLinhaCategoriaRepository.findByCodigo(codigoLinha);
+
+        if(linhaCategoriaOptional.isPresent()){
+            LinhaCategoria linhaCategoria = linhaCategoriaOptional.get();
+            LinhaCategoriaDTO linhaCategoriaDTO = LinhaCategoriaDTO.of(linhaCategoria);
+
+            return linhaCategoriaDTO;
+
+        }
+
+        throw new IllegalArgumentException(String.format("Código %s não existe", codigoLinha));
+
+    }
 }
 
 

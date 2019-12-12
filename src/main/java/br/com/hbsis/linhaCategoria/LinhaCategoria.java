@@ -13,7 +13,7 @@ public class LinhaCategoria {
     private Long id;
 
     @Column(name = "codigo_linha", unique = true, nullable = false, length = 10)
-    private String codigoLinha;
+    private String codigo;
 
     // MUITAS LINHAS DE CATEGORIA PARA UMA ÚNICA CATEGORIA DE PRODUTO
     @ManyToOne
@@ -33,11 +33,11 @@ public class LinhaCategoria {
     }
 
     public String getCodigoLinha() {
-        return codigoLinha;
+        return codigo;
     }
 
     public void setCodigoLinha(String codigoLinha) {
-        this.codigoLinha = codigoLinha;
+        this.codigo = codigoLinha;
     }
 
     public CategoriaProduto getCategoriaProduto() {
@@ -60,7 +60,7 @@ public class LinhaCategoria {
     public String toString() {
         return "LinhaCategoria{" +
                 "id=" + id +
-                ", codigoLinha=" + codigoLinha +
+                ", codigoLinha=" + codigo +
                 ", categoriaProduto=" + categoriaProduto +
                 ", nome='" + nome + '\'' +
                 '}';

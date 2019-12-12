@@ -11,6 +11,6 @@ import java.util.Optional;
 @Repository
 public interface ICategoriaProdutoRepository extends JpaRepository<CategoriaProduto, Long> {
 
-    // MÉTODO DE OBTER CATEGORIA PELO CÓDIGO
+    // OBTER DADOS VIA CÓDIGO DA CATEGORIA
     Optional<CategoriaProduto> findByCodigo(String codigo);
 }

@@ -72,46 +72,6 @@ public class CategoriaProdutoRest {
         categoriaProdutoService.findAll(file);
     }
 
-    /* *** TESTE ATIVIDADE 4 ***
-    @RequestMapping(value = "/importando-categorias", method = RequestMethod.POST)
-    public String importarCSV(@RequestParam("categoriaProduto.csv") MultipartFile file, HttpServletRequest request, RedirectAttributes redirectAttributes) throws SQLException {
-
-       File arquivoCSV = new File("E:\\categoriaProduto.csv");
-
-       // TESTE DE VERIFICAÇÃO
-       System.out.print("file: "+ arquivoCSV.getAbsoluteFile());
-       System.out.print("path: "+ arquivoCSV.getAbsolutePath());
-
-        try{
-
-            // CRIA UM SCCANER PARA LER O ARQUIVO
-            Scanner leitorArquivo = new Scanner(arquivoCSV);
-
-            // VARIÁVEL QUE GUARDA AS LINHAS DO ARQUIVO
-            String linhasArquivo = new String();
-
-            // LAÇO PARA LER O ARQUIVO
-            while(leitorArquivo.hasNext()){
-
-                // RECEBE CADA LINHA DO ARQUIVO
-                linhasArquivo = leitorArquivo.nextLine();
-
-                // SEPARA OS CAMPOS ENTRE AS VÍRGULAS DE CADA LINHA
-                String[] valoresEntreVirgulas = linhasArquivo.split(";");
-
-                // IMPRIME A COLUNA QUE QUISER
-                for(int i = 0; i < valoresEntreVirgulas.length; i++){
-                    System.out.print(valoresEntreVirgulas[i]);
-                }
-            }
-
-        }catch(FileNotFoundException erro){
-            erro.printStackTrace();
-        }
-
-        return "redirect: importar-categorias";
-   }*/
-
     // IMPORTAR DE UM CSV - ATIVIDADE 4
     @PostMapping("/importarcsv")
     public void importarCSV(@RequestParam("file") MultipartFile file) throws Exception {

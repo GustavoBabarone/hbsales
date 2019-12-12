@@ -1,5 +1,7 @@
 package br.com.hbsis.produto;
 
+import java.util.Date;
+
 public class ProdutoDTO {
 
     /* ATRIBUTOS */
@@ -11,7 +13,7 @@ public class ProdutoDTO {
     private Long unidadeCaixa;
     private Double pesoUnidade;
     private String unidadeDePeso;
-    private String validade;
+    private Date validade;
 
     /* CONSTRUTORES */
     public ProdutoDTO() {
@@ -19,7 +21,7 @@ public class ProdutoDTO {
 
     public ProdutoDTO(Long id, String codigo, String nome, Double preco,
                       Long idLinha, Long unidadeCaixa, Double pesoUnidade,
-                      String unidadeDePeso, String validade) {
+                      String unidadeDePeso, Date validade) {
         this.id = id;
         this.codigo = codigo;
         this.nome = nome;
@@ -103,11 +105,11 @@ public class ProdutoDTO {
         this.pesoUnidade = pesoUnidade;
     }
 
-    public String getValidade() {
+    public Date getValidade() {
         return validade;
     }
 
-    public void setValidade(String validade) {
+    public void setValidade(Date validade) {
         this.validade = validade;
     }
 
