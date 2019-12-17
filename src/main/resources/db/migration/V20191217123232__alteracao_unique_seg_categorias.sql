@@ -1,0 +1,1 @@
+DROP index ix_seg_categorias_03 on seg_categorias;

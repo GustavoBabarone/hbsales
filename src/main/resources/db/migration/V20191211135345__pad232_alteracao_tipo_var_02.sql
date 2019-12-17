@@ -1,0 +1,1 @@
+ALTER TABLE seg_produtos ALTER COLUMN validade DATE;

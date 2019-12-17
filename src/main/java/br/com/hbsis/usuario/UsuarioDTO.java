@@ -12,7 +12,6 @@ public class UsuarioDTO {
 	public UsuarioDTO() {
 	}
 
-
 	public UsuarioDTO(String senha, String login) {
 		this.senha = senha;
 		this.login = login;
