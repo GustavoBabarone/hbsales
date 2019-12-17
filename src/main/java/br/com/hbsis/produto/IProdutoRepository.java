@@ -11,6 +11,6 @@ import java.util.Optional;
 @Repository
 public interface IProdutoRepository extends JpaRepository<Produto, Long> {
 
-    // MÉTODO DE VALIDAR CÓDIGO ÚNICO NO BANCO
-    //Optional<Produto> findByCodigo(String codigo);
+    // MÉTODO DE OBTER DADOS VIA CÓDIGO DO PRODUTO
+    Optional<Produto> findByCodigoProduto(String codigo);
 }

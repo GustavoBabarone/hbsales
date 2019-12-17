@@ -14,7 +14,7 @@ public class Produto {
     private Long id;
 
     @Column(name = "codigo", unique = true, nullable = false, length = 10)
-    private String codigo;
+    private String codigoProduto;
 
     @Column(name = "nome", unique = false, nullable = false, length = 200)
     private String nome;
@@ -47,12 +47,12 @@ public class Produto {
         this.id = id;
     }
 
-    public String getCodigo() {
-        return codigo;
+    public String getCodigoProduto() {
+        return codigoProduto;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public void setCodigoProduto(String codigoProduto) {
+        this.codigoProduto = codigoProduto;
     }
 
     public String getNome() {
@@ -115,7 +115,7 @@ public class Produto {
     public String toString() {
         return "Produto{" +
                 "id=" + id +
-                ", codigo='" + codigo + '\'' +
+                ", codigo='" + codigoProduto + '\'' +
                 ", nome='" + nome + '\'' +
                 ", preco=" + preco +
                 ", linhaCategoria=" + linhaCategoria +

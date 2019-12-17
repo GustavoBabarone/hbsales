@@ -51,14 +51,13 @@ public class LinhaCategoriaService {
         // INSTANCIAR OBJETOS
         LinhaCategoria linhaCategoria = new LinhaCategoria();
 
-            String codigo = linhaCategoriaDTO.getCodigoLinha();
-            String codigoUpperCase = codigo.toUpperCase();
-            String codigoProcessado = codigoZerosEsquerda(codigoUpperCase);
-
-            linhaCategoria.setCodigoLinha(codigoProcessado);
+        String codigo = linhaCategoriaDTO.getCodigoLinha();
+        String codigoUpperCase = codigo.toUpperCase();
+        String codigoProcessado = codigoZerosEsquerda(codigoUpperCase);
+        linhaCategoria.setCodigoLinha(codigoProcessado);
 
         /* CONVERTER CategoriaDTO PARA Categoria */
-        CategoriaProdutoDTO categoriaProdutoDTO = categoriaProdutoService.findById(linhaCategoriaDTO.getId());
+        CategoriaProdutoDTO categoriaProdutoDTO = categoriaProdutoService.findById(linhaCategoriaDTO.getIdCategoria());
         CategoriaProduto categoriaProduto = conversor(categoriaProdutoDTO);
         /* TERMINO DA CONVERSÃO */
 
@@ -204,7 +203,7 @@ public class LinhaCategoriaService {
                     // LINHA COM AS INFOS
                     rows.getCodigoLinha(),
                     rows.getNome(),
-                    rows.getCategoriaProduto().getCodigo(),
+                    rows.getCategoriaProduto().getCodigoCategoria(),
                     rows.getCategoriaProduto().getNome()
             });
         }
@@ -227,11 +226,15 @@ public class LinhaCategoriaService {
             // OBJETOS DAS CLASSES LinhaCategoria e CategoriaProduto
             LinhaCategoria linhaCategoria = new LinhaCategoria();
 
+            boolean valida = findByCodigo(vetor[0]);
+
+            if(valida == false){
+
             linhaCategoria.setCodigoLinha(vetor[0]);
 
             /* CONVERTER VARIÁVEL TIPO LinhaCategoriaDTO PARA LinhaCategoria */
             CategoriaProduto categoriaProduto = new CategoriaProduto();
-            CategoriaProdutoDTO categoriaProdutoDTO = this.categoriaProdutoService.findByCodigo(vetor[2]);
+            CategoriaProdutoDTO categoriaProdutoDTO = this.categoriaProdutoService.findByCodigoCategoria(vetor[2]);
             categoriaProduto = conversor(categoriaProdutoDTO);
             /* FIM DA CONVERSÃO */
 
@@ -240,28 +243,43 @@ public class LinhaCategoriaService {
 
             // ADICIONAR OBJ LinhaCategoria NO ARRAY LIST
             linhaCategoriaList.add(linhaCategoria);
+
+            }else if(valida == true){
+                LOGGER.info("Linha já existente no banco de dados...");
+            }
         }
+            LOGGER.info("Finalizando importação...");
 
-        LOGGER.info("Finalizando importação...");
-
-        return iLinhaCategoriaRepository.saveAll(linhaCategoriaList);
+            return iLinhaCategoriaRepository.saveAll(linhaCategoriaList);
     }
 
     // OBTER DADOS VIA CÓDIGO DA LINHA DE CATEGORIA
-    public LinhaCategoriaDTO findByCodigo(String codigoLinha) {
+    public LinhaCategoriaDTO findByCodigoLinha(String codigoLinha) {
 
-        Optional<LinhaCategoria> linhaCategoriaOptional = this.iLinhaCategoriaRepository.findByCodigo(codigoLinha);
+        Optional<LinhaCategoria> linhaCategoriaOptional = this.iLinhaCategoriaRepository.findByCodigoLinha(codigoLinha);
 
         if(linhaCategoriaOptional.isPresent()){
+
             LinhaCategoria linhaCategoria = linhaCategoriaOptional.get();
             LinhaCategoriaDTO linhaCategoriaDTO = LinhaCategoriaDTO.of(linhaCategoria);
-
             return linhaCategoriaDTO;
-
         }
 
         throw new IllegalArgumentException(String.format("Código %s não existe", codigoLinha));
+    }
 
+    public boolean findByCodigo(String codigoLinha) {
+
+        boolean valida;
+        Optional<LinhaCategoria> linhaCategoriaOptional = this.iLinhaCategoriaRepository.findByCodigoLinha(codigoLinha);
+
+        if(linhaCategoriaOptional.isPresent()){
+                valida = true;
+                return valida;
+        }else{
+                valida = false;
+                return valida;
+        }
     }
 }
 

@@ -4,7 +4,7 @@ public class CategoriaProdutoDTO {
 
     /* ATRIBUTOS */
     private Long id;
-    private String codigo;
+    private String codigoCategoria;
     private Long idFornecedor;
     private String nome;
 
@@ -14,7 +14,7 @@ public class CategoriaProdutoDTO {
 
     public CategoriaProdutoDTO(Long id, String codigo, Long idFornecedor, String nome) {
         this.id = id;
-        this.codigo = codigo;
+        this.codigoCategoria = codigo;
         this.idFornecedor = idFornecedor;
         this.nome = nome;
     }
@@ -23,7 +23,7 @@ public class CategoriaProdutoDTO {
         return new CategoriaProdutoDTO(
 
                 categoriaProduto.getId(),
-                categoriaProduto.getCodigo(),
+                categoriaProduto.getCodigoCategoria(),
                 categoriaProduto.getFornecedor().getId(),// * TESTE *
                 categoriaProduto.getNome()
         );
@@ -39,12 +39,12 @@ public class CategoriaProdutoDTO {
         this.id = id;
     }
 
-    public String getCodigo() {
-        return codigo;
+    public String getCodigoCategoria() {
+        return codigoCategoria;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public void setCodigoCategoria(String codigoCategoria) {
+        this.codigoCategoria = codigoCategoria;
     }
 
     public Long getIdFornecedor() {
@@ -68,7 +68,7 @@ public class CategoriaProdutoDTO {
     public String toString() {
         return "CategoriaProdutoDTO{" +
                 "id=" + id +
-                ", codigo=" + codigo +
+                ", codigo=" + codigoCategoria +
                 ", idFornecedor=" + idFornecedor +
                 ", nome='" + nome + '\'' +
                 '}';

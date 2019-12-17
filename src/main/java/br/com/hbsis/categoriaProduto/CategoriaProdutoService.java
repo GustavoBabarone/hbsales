@@ -16,8 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,55 +54,29 @@ public class CategoriaProdutoService {
 
         //  OBTER fornecedorDTO PELO 'ID' ESPECÍFICO
         FornecedorDTO fornecedorDTO = fornecedorService.findById(categoriaProdutoDTO.getIdFornecedor());
-
-            // OBTER O CNPJ DO FORNECEDOR
-            String cnpj = fornecedorDTO.getCnpj();
-
-            // OBTER SOMENTE OS 4 ULTIMOS DIGITOS DO CNPJ
-            String cnpjProcessado = ultimoDigitoCnpj(cnpj);
-
-            // OBTER CODIGO INFORMADO PELO FORNECEDOR
-            String codigo = categoriaProdutoDTO.getCodigo();
-
-            String codigoComZero = validarCodigo(codigo);
-
-            // CONCATENAR CODIGO FINAL
-            String codigoProcessado = "CAT"+cnpjProcessado+codigoComZero;
-
-            // DEFINIR O CÓDIGO CONCATENADO
-            categoriaProduto.setCodigo(codigoProcessado);
-
-        // EXECUTANDO MÉTODO DE CONVERSÃO
         Fornecedor fornecedor = conversor(fornecedorDTO);
-
-        // PASSAR PARÂMETRO CONVERTIDO
         categoriaProduto.setFornecedor(fornecedor);
+
+        String cnpj = fornecedorDTO.getCnpj();
+        String cnpjProcessado = ultimoDigitoCnpj(cnpj);
+        String codigo = categoriaProdutoDTO.getCodigoCategoria().toUpperCase();
+        String codigoComZero = validarCodigo(codigo);
+        String codigoProcessado = "CAT"+cnpjProcessado+codigoComZero;
+        categoriaProduto.setCodigoCategoria(codigoProcessado);
+
         categoriaProduto.setNome(categoriaProdutoDTO.getNome());
 
         categoriaProduto = this.iCategoriaProdutoRepository.save(categoriaProduto);
 
         return CategoriaProdutoDTO.of(categoriaProduto);
-
     }
 
     // VALIDAR CODIGO INFORMADO PELO FORNECEDOR
     public String validarCodigo(String codigo){
 
-        String codigoComZero = "";
+        String codigoProcessado = StringUtils.leftPad(codigo, 3, "0");
 
-        if(codigo.length() == 3 ){
-            codigoComZero = codigo;
-        }
-
-        if(codigo.length() == 2 ){
-            codigoComZero = "0"+codigo;
-        }
-
-        if(codigo.length() == 1 ){
-            codigoComZero = "00"+codigo;
-        }
-
-        return codigoComZero;
+        return codigoProcessado;
     }
 
     // MÉTODO DE OBTER SOMENTE OS 4 ÚLTIMOS DIGITOS DO CNPJ
@@ -143,7 +115,7 @@ public class CategoriaProdutoService {
             throw new IllegalArgumentException("ID do fornecedor não deve ser nulo");
         }
 
-        if (StringUtils.isEmpty(categoriaProdutoDTO.getCodigo())) {
+        if (StringUtils.isEmpty(categoriaProdutoDTO.getCodigoCategoria())) {
             throw new IllegalArgumentException("Código não deve ser nulo/vazio");
         }
 
@@ -189,12 +161,12 @@ public class CategoriaProdutoService {
                 // PROCESSO DE CONCATENAÇÃO DO CÓDIGO
                 String cnpj = fornecedorDTO.getCnpj();
                 String cnpjProcessado = ultimoDigitoCnpj(cnpj);
-                String codigo = categoriaProdutoDTO.getCodigo();
+                String codigo = categoriaProdutoDTO.getCodigoCategoria().toUpperCase();
                 String codigoComZero = validarCodigo(codigo);
                 String codigoProcessado = "CAT"+cnpjProcessado+codigoComZero;
 
                 // DEFINIR O CÓDIGO CONCATENADO
-                categoriaProdutoExistente.setCodigo(codigoProcessado);
+                categoriaProdutoExistente.setCodigoCategoria(codigoProcessado);
 
             // EXECUTANDO MÉTODO DE CONVERSÃO
             Fornecedor fornecedor = conversor(fornecedorDTO);
@@ -245,7 +217,7 @@ public class CategoriaProdutoService {
             icsvWriter.writeNext(new String[]{
 
                     // LINHAS COM AS INFORMAÇÕES
-                    rows.getCodigo(),
+                    rows.getCodigoCategoria(),
                     rows.getNome(),
                     rows.getFornecedor().getRazaoSocial(),
                     mascaraFormatada(rows.getFornecedor().getCnpj()),
@@ -257,12 +229,6 @@ public class CategoriaProdutoService {
     // MÉTODO DE FORMATAR CNPJ PARA EXPORTAR PARA CSV - ATIVIDADE 3
     public String mascaraFormatada(String cnpj){
 
-        /*String cnpjFormatado =  cnpj.charAt(0)+cnpj.charAt(1)+"."+
-                                cnpj.charAt(2)+cnpj.charAt(3)+cnpj.charAt(4)+"."+
-                                cnpj.charAt(5)+cnpj.charAt(6)+cnpj.charAt(7)+"/"+
-                                cnpj.charAt(8)+cnpj.charAt(9)+cnpj.charAt(10)+cnpj.charAt(11)+"-"+
-                                cnpj.charAt(12)+cnpj.charAt(13);*/
-
         String cnpj1formador =  cnpj.substring(0, 2)+ "."+
                                 cnpj.substring(2, 5)+"."+
                                 cnpj.substring(5, 8)+ "/"+
@@ -270,9 +236,6 @@ public class CategoriaProdutoService {
                                 cnpj.substring(12, 14);
 
         return cnpj1formador;
-
-
-        /*return cnpjFormatado;*/
     }
 
     // IMPORTAR DE UM CSV - ATIVIDADE 4
@@ -292,9 +255,13 @@ public class CategoriaProdutoService {
             // OBJETOS DAS CLASSES CategoriaProduto e Fornecedor
             CategoriaProduto categoriaProduto = new CategoriaProduto();
 
-            categoriaProduto.setCodigo(vetor[0]);
-            categoriaProduto.setNome(vetor[1]);
-            // vetor[2] = razão social -> não utilizada
+            boolean valida = findByCodigo(vetor[0]);
+
+            if(valida == false) {
+
+                categoriaProduto.setCodigoCategoria(vetor[0]);
+                categoriaProduto.setNome(vetor[1]);
+                // vetor[2] = razão social -> não utilizada
 
                 // OBTER 'ID' DO CNPJ CADASTRADO DO EXCEL
                 // CONVERTANDO VARIÁVEL TIPO FornecedorDTO PARA Fornecedor
@@ -307,44 +274,56 @@ public class CategoriaProdutoService {
 
                 categoriaProduto.setFornecedor(fornecedor);
 
-            // ADICIONAR OBJ CategoriaProduto NO ARRAY LIST
-            categoriaProdutoList.add(categoriaProduto);
+                // ADICIONAR OBJ CategoriaProduto NO ARRAY LIST
+                categoriaProdutoList.add(categoriaProduto);
 
+            }else if(valida == true){
+                LOGGER.info("Categoria já existente no banco de dados...");
+            }
         }
+            LOGGER.info("Finalizando importação...");
 
-        LOGGER.info("Finalizando importação...");
-
-        return iCategoriaProdutoRepository.saveAll(categoriaProdutoList);
-
+            return iCategoriaProdutoRepository.saveAll(categoriaProdutoList);
     }
 
     public String desformatarCnpj(String cnpj) {
 
-        String cnpjDesformatado =   cnpj.charAt(0)+""+cnpj.charAt(1)+
+        String cnpjDesformatado =   ""+cnpj.charAt(0)+cnpj.charAt(1)+
                                     cnpj.charAt(3)+cnpj.charAt(4)+cnpj.charAt(5)+
                                     cnpj.charAt(7)+cnpj.charAt(8)+cnpj.charAt(9)+
                                     cnpj.charAt(11)+cnpj.charAt(12)+cnpj.charAt(13)+cnpj.charAt(14)+
                                     cnpj.charAt(16)+cnpj.charAt(17);
 
         return cnpjDesformatado;
-
     }
 
-    public CategoriaProdutoDTO findByCodigo(String codigo) {
+    public CategoriaProdutoDTO findByCodigoCategoria(String codigo) {
 
-        Optional<CategoriaProduto> categoriaProdutoOptional = this.iCategoriaProdutoRepository.findByCodigo(codigo);
+        Optional<CategoriaProduto> categoriaProdutoOptional = this.iCategoriaProdutoRepository.findByCodigoCategoria(codigo);
 
         if (categoriaProdutoOptional.isPresent()) {
+
             CategoriaProduto categoriaProduto = categoriaProdutoOptional.get();
             CategoriaProdutoDTO categoriaProdutoDTO = CategoriaProdutoDTO.of(categoriaProduto);
-
             return categoriaProdutoDTO;
-
         }
 
         String format = String.format("Código %s não existe", codigo);
-
         throw new IllegalArgumentException(format);
+    }
+
+    public boolean findByCodigo(String codigo) {
+
+        boolean valida;
+        Optional<CategoriaProduto> categoriaProdutoOptional = this.iCategoriaProdutoRepository.findByCodigoCategoria(codigo);
+
+        if (categoriaProdutoOptional.isPresent()) {
+                valida = true;
+                return valida;
+        }else{
+                valida = false;
+                return valida;
+        }
     }
 }
 

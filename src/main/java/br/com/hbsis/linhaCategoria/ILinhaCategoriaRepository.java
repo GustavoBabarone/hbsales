@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface ILinhaCategoriaRepository extends JpaRepository<LinhaCategoria, Long> {
 
     // OBTER DADOS VIA CÓDIGO DA LINHA DE CATEGORIA
-    Optional<LinhaCategoria> findByCodigo(String codigoLinha);
+    Optional<LinhaCategoria> findByCodigoLinha(String codigoLinha);
 }

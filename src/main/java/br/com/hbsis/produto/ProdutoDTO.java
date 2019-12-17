@@ -6,7 +6,7 @@ public class ProdutoDTO {
 
     /* ATRIBUTOS */
     private Long id;
-    private String codigo;
+    private String codigoProduto;
     private String nome;
     private Double preco;
     private Long idLinha;
@@ -23,7 +23,7 @@ public class ProdutoDTO {
                       Long idLinha, Long unidadeCaixa, Double pesoUnidade,
                       String unidadeDePeso, Date validade) {
         this.id = id;
-        this.codigo = codigo;
+        this.codigoProduto = codigo;
         this.nome = nome;
         this.preco = preco;
         this.idLinha = idLinha;
@@ -37,7 +37,7 @@ public class ProdutoDTO {
         return new ProdutoDTO(
 
                 produto.getId(),
-                produto.getCodigo(),
+                produto.getCodigoProduto(),
                 produto.getNome(),
                 produto.getPreco(),
                 produto.getLinhaCategoria().getId(),
@@ -57,12 +57,12 @@ public class ProdutoDTO {
         this.id = id;
     }
 
-    public String getCodigo() {
-        return codigo;
+    public String getCodigoProduto() {
+        return codigoProduto;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public void setCodigoProduto(String codigoProduto) {
+        this.codigoProduto = codigoProduto;
     }
 
     public String getNome() {
@@ -125,7 +125,7 @@ public class ProdutoDTO {
     public String toString() {
         return "ProdutoDTO{" +
                 "id=" + id +
-                ", codigo='" + codigo + '\'' +
+                ", codigo='" + codigoProduto + '\'' +
                 ", nome='" + nome + '\'' +
                 ", preco=" + preco +
                 ", idLinha=" + idLinha +

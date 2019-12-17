@@ -19,7 +19,7 @@ public class CategoriaProduto {
 
     // DEFINIR O NOME DA COLUNA NO BANCO E QUAL ATRIBUTO CORRESPONDE
     @Column(name = "codigo", unique = true, nullable = false, length = 14)
-    private String codigo;
+    private String codigoCategoria;
 
     // MUITAS CATEGORIAS PARA UM ÚNICO FORNECEDOR
     @ManyToOne
@@ -38,12 +38,12 @@ public class CategoriaProduto {
         this.id = id;
     }
 
-    public String getCodigo() {
-        return codigo;
+    public String getCodigoCategoria() {
+        return codigoCategoria;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public void setCodigoCategoria(String codigoCategoria) {
+        this.codigoCategoria = codigoCategoria;
     }
 
     public String getNome() {
@@ -68,7 +68,7 @@ public class CategoriaProduto {
     public String toString(){
         return "Categoria{ " +
                 "id = "              +   id             +
-                ", codigo = "        +   codigo         + '\'' +
+                ", codigo = "        + codigoCategoria + '\'' +
                 ", id_fornecedor = " +   fornecedor     + '\'' +
                 ", nome = "          +   nome           + '\'' +
                 "}";

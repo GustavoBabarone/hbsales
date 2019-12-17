@@ -79,4 +79,14 @@ public class ProdutoRest {
         produtoService.obterTudo(file);
     }
 
+    // IMPORTAR DE UM CSV POR FORNECEDOR - ATIVIDADE 11
+    @PostMapping("/importarcsvfornecedor/{id}")
+    public void importarCSVPorFornecedor(@RequestParam("file")MultipartFile file, @PathVariable("id") Long id) throws Exception {
+
+        LOGGER.info("Recebendo importação de um CSV por fornecedor de id: [{}]", id);
+
+        produtoService.importarPorFornecedor(file, id);
+
+    }
+
 }

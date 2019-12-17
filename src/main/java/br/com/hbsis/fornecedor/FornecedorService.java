@@ -98,11 +98,9 @@ public class FornecedorService {
         /*String nome = "Gustavo";
         String empresa = "HBSIS";
         String mensagem = "meu nome é " + nome + " e eu trabalho na " + empresa + ".";
-
         String format1 = String.format("Meu nome é %s e eu trabalho na %s", nome, empresa);*/
 
         String format = String.format("ID %s não existe", id);
-
         throw new IllegalArgumentException(format);
     }
 
@@ -147,15 +145,29 @@ public class FornecedorService {
         Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findByCnpj(cnpj);
 
         if(fornecedorOptional.isPresent()){
+
             Fornecedor fornecedor = fornecedorOptional.get();
             FornecedorDTO fornecedorDTO = FornecedorDTO.of(fornecedor);
-
             return fornecedorDTO;
         }
 
         String format = String.format("Cnpj %s não existe", cnpj);
-
         throw new IllegalArgumentException(format);
     }
 
+    // ATIVIDADE 11
+    public boolean findByIdFornecedor(Long id){
+
+        boolean valida;
+        Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findById(id);
+
+        if(fornecedorOptional.isPresent()){
+            valida = true;
+            return valida;
+        }else {
+            valida = false;
+            return valida;
+        }
+
+    }
 }
