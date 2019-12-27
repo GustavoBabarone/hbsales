@@ -1,9 +1,8 @@
-package br.com.hbsis.periodoVendas;
+package br.com.hbsis.periodovendas;
 
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorService;
-import br.com.hbsis.fornecedor.IFornecedorRepository;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,16 +16,13 @@ import java.util.Optional;
 public class PeriodoVendasService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PeriodoVendasService.class);
-
     private final FornecedorService fornecedorService;
     private final IPeriodoVendasRepository iPeriodoVendasRepository;
-    private final IFornecedorRepository iFornecedorRepository;
 
-    @Autowired /* CONSTRUTOR */
-    public PeriodoVendasService(FornecedorService fornecedorService, IPeriodoVendasRepository iPeriodoVendasRepository, IFornecedorRepository iFornecedorRepository) {
+    @Autowired /** CONSTRUTOR */
+    public PeriodoVendasService(FornecedorService fornecedorService, IPeriodoVendasRepository iPeriodoVendasRepository) {
         this.fornecedorService = fornecedorService;
         this.iPeriodoVendasRepository = iPeriodoVendasRepository;
-        this.iFornecedorRepository = iFornecedorRepository;
     }
 
     public PeriodoVendasDTO save(PeriodoVendasDTO periodoVendasDTO){

@@ -1,13 +1,8 @@
 package br.com.hbsis.fornecedor;
 
-import org.bouncycastle.asn1.x500.style.RFC4519Style;
-
-/**
- * Classe para tráfego das informações do usuário
- */
 public class FornecedorDTO{
 
-    /* ATRIBUTOS */
+    /** ATRIBUTOS */
     private Long id;
     private String razaoSocial;
     private String cnpj;
@@ -16,12 +11,11 @@ public class FornecedorDTO{
     private String telefoneContato;
     private String emailContato;
 
-    /* CONSTRUTORES */
+    /** CONSTRUTORES */
     public FornecedorDTO(){
     }
 
-    public FornecedorDTO(Long id, String razaoSocial, String cnpj, String nomeFantasia,
-                         String endereco, String telefoneContato, String emailContato){
+    public FornecedorDTO(Long id, String razaoSocial, String cnpj, String nomeFantasia, String endereco, String telefoneContato, String emailContato){
         this.id = id;
         this.razaoSocial = razaoSocial;
         this.cnpj = cnpj;
@@ -43,7 +37,7 @@ public class FornecedorDTO{
         );
     }
 
-    /* GETTER */
+    /** GETTER & SETTER*/
     public Long getId() { return id; }
 
     public String getRazaoSocial() {
@@ -70,7 +64,6 @@ public class FornecedorDTO{
         return emailContato;
     }
 
-    /* SETTER */
     public void setRazaoSocial(String razaoSocial) {
         this.razaoSocial = razaoSocial;
     }

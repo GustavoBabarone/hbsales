@@ -1,14 +1,14 @@
-package br.com.hbsis.linhaCategoria;
+package br.com.hbsis.linhacategoria;
 
 public class LinhaCategoriaDTO {
 
-    /* ATRIBUTOS */
+    /** ATRIBUTOS */
     private Long id;
     private String codigoLinha;
     private Long idCategoria;
     private String nome;
 
-    /* CONSTRUTORES */
+    /** CONSTRUTORES */
     public LinhaCategoriaDTO() {
     }
 
@@ -29,7 +29,7 @@ public class LinhaCategoriaDTO {
         );
     }
 
-    /* GETTER & SETTER */
+    /** GETTER & SETTER */
     public Long getId() {
         return id;
     }

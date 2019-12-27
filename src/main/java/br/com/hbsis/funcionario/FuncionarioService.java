@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 @Service
 public class FuncionarioService {
@@ -117,5 +118,27 @@ public class FuncionarioService {
             erroAPI.printStackTrace();
         }
         throw new IllegalArgumentException("Falha ao validar funcionário na API...");
+    }
+
+    public FuncionarioDTO findById(Long id){
+
+        Optional<Funcionario> funcionarioOptional = this.iFuncionarioRepository.findById(id);
+
+        if (funcionarioOptional.isPresent()) {
+
+            Funcionario funcionario = funcionarioOptional.get();
+            FuncionarioDTO funcionarioDTO = FuncionarioDTO.of(funcionario);
+            return funcionarioDTO;
+        }
+
+        String format = String.format("Id %s não existe", id);
+        throw new IllegalArgumentException(format);
+    }
+
+    public Funcionario conversor(FuncionarioDTO funcionarioDTO){
+
+        Funcionario funcionario = new Funcionario();
+        funcionario.setId(funcionarioDTO.getId());
+        return funcionario;
     }
 }

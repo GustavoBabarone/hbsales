@@ -8,24 +8,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-/**
- * Classe responsável pelo processamento da regra de negócio
- */
 @Service
 public class FornecedorService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FornecedorService.class);
-
     private final IFornecedorRepository iFornecedorRepository;
 
-    @Autowired
+    @Autowired /** CONTRUTOR */
     public FornecedorService(IFornecedorRepository iFornecedorRepository) {
         this.iFornecedorRepository = iFornecedorRepository;
     }
 
-    public FornecedorDTO save(FornecedorDTO fornecedorDTO){
+    /** MÉTODOS DE CRUD */
+    public FornecedorDTO salvar(FornecedorDTO fornecedorDTO){
 
-        this.validate(fornecedorDTO);
+        this.validarCamposTexto(fornecedorDTO);
 
         LOGGER.info("Salvando fornecedor");
         LOGGER.debug("Fornecedor: {}", fornecedorDTO);
@@ -39,72 +36,12 @@ public class FornecedorService {
         fornecedor.setEmailContato(fornecedorDTO.getEmailContato());
 
         fornecedor = this.iFornecedorRepository.save(fornecedor);
-
         return FornecedorDTO.of(fornecedor);
     }
 
-    private void validate(FornecedorDTO fornecedorDTO){
+    public FornecedorDTO atualizar(FornecedorDTO fornecedorDTO, Long id) {
 
-        LOGGER.info("Validando fornecedor");
-
-        // VARIÁVEL DO TELEFONE INFORMADO
-        String telefone = fornecedorDTO.getTelefoneContato();
-
-        // CONDICIONAL DE TELEFONE TIPO CELULAR SOMENTE
-        if(telefone.charAt(5) != '9'){
-            throw new IllegalArgumentException("Informe apenas telefones celulares");
-        }
-
-        if(telefone.length() == 9){
-            throw new IllegalArgumentException("Informe DDD e DDI");
-        }
-
-        if(StringUtils.isEmpty(fornecedorDTO.getRazaoSocial())){
-            throw new IllegalArgumentException("Razao Social não deve ser nulo/vazio");
-        }
-
-        if(StringUtils.isEmpty(fornecedorDTO.getCnpj())){
-            throw new IllegalArgumentException("Cnpj não deve ser nulo/vazio");
-        }
-
-        if(StringUtils.isEmpty(fornecedorDTO.getNomeFantasia())){
-            throw new IllegalArgumentException("Nome fantasia não deve ser nulo/vazio");
-        }
-
-        if(StringUtils.isEmpty(fornecedorDTO.getEndereco())){
-            throw new IllegalArgumentException("Endereço não deve ser nulo/vazio");
-        }
-
-        if(fornecedorDTO.getTelefoneContato() == null){
-            throw new IllegalArgumentException("Telefone não deve ser nulo");
-        }
-
-        if(StringUtils.isEmpty(fornecedorDTO.getEmailContato())){
-            throw new IllegalArgumentException("Email não deve ser nulo/vazio");
-        }
-    }
-
-    public FornecedorDTO findById(Long id){
-
-        Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findById(id);
-
-        if(fornecedorOptional.isPresent()){
-            Fornecedor fornecedor = fornecedorOptional.get();
-            FornecedorDTO fornecedorDTO = FornecedorDTO.of(fornecedor);
-
-            return fornecedorDTO;
-        }
-
-        /*String nome = "Gustavo";
-        String empresa = "HBSIS";
-        String mensagem = "meu nome é " + nome + " e eu trabalho na " + empresa + ".";
-        String format1 = String.format("Meu nome é %s e eu trabalho na %s", nome, empresa);*/
-
-        String format = String.format("ID %s não existe", id);
-        throw new IllegalArgumentException(format);
-    }
-
-    public FornecedorDTO update(FornecedorDTO fornecedorDTO, Long id) {
+        this.validarCamposTexto(fornecedorDTO);
 
         Optional<Fornecedor> fornecedorExistenteOptional = this.iFornecedorRepository.findById(id);
 
@@ -112,7 +49,7 @@ public class FornecedorService {
 
             Fornecedor fornecedorExistente = fornecedorExistenteOptional.get();
 
-            LOGGER.info("Atualizando fornecedor... id: [{}]", fornecedorExistente.getId());
+            LOGGER.info("Atualizando br.com.hbsis.Fornecedor... nome: [{}]", Fornecedor.class.getName());
             LOGGER.debug("Payaload: {}", fornecedorDTO);
             LOGGER.debug("Fornecedor Existente: {}", fornecedorExistente);
 
@@ -124,22 +61,102 @@ public class FornecedorService {
             fornecedorExistente.setEmailContato(fornecedorDTO.getEmailContato());
 
             fornecedorExistente = this.iFornecedorRepository.save(fornecedorExistente);
-
             return FornecedorDTO.of(fornecedorExistente);
         }
-
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
-
     }
 
-    public void delete(Long id){
+    public void deletar(Long id){
 
-        LOGGER.info("Executando delete para usuário de ID: [{}]", id);
+        LOGGER.info("Executando delete para fornecedor de id: [{}]", id);
 
-        this.iFornecedorRepository.deleteById(id);
+        if(iFornecedorRepository.existsById(id)) {
+            this.iFornecedorRepository.deleteById(id);
+        }else {
+            throw new IllegalArgumentException("Fornecedor não cadastrado");
+        }
     }
 
-    // ENCONTRAR PELO CNPJ ESPECÍFICO
+    public FornecedorDTO findById(Long id){
+
+        Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findById(id);
+
+        if(fornecedorOptional.isPresent()){
+
+            Fornecedor fornecedor = fornecedorOptional.get();
+            FornecedorDTO fornecedorDTO = FornecedorDTO.of(fornecedor);
+            return fornecedorDTO;
+        }
+        String format = String.format("ID %s não existe", id);
+        throw new IllegalArgumentException(format);
+    }
+
+    private void validarCamposTexto(FornecedorDTO fornecedorDTO){
+
+        LOGGER.info("Validando fornecedor");
+
+        String telefone = fornecedorDTO.getTelefoneContato();
+        if(telefone.charAt(5) != '9'){
+            throw new IllegalArgumentException("Informe apenas telefones celulares");
+        }
+
+        if(telefone.length() == 9){
+            throw new IllegalArgumentException("Informe DDD e DDI");
+        }
+
+        if(telefone.length() != 13){
+            throw new IllegalArgumentException("Telefone deve conter 13 digitos");
+        }
+
+        if(StringUtils.isEmpty(fornecedorDTO.getRazaoSocial())){
+            throw new IllegalArgumentException("Razao Social não deve ser nulo/vazio");
+        }
+
+        if(fornecedorDTO.getRazaoSocial().length() > 100){
+            throw new IllegalArgumentException("Razao Social deve conter até 100 caracteres");
+        }
+
+        if(StringUtils.isEmpty(fornecedorDTO.getCnpj())){
+            throw new IllegalArgumentException("Cnpj não deve ser nulo/vazio");
+        }
+
+        if(fornecedorDTO.getCnpj().length() != 14){
+            throw new IllegalArgumentException("Cnpj deve conter 14 digitos");
+        }
+
+        if(StringUtils.isEmpty(fornecedorDTO.getNomeFantasia())){
+            throw new IllegalArgumentException("Nome fantasia não deve ser nulo/vazio");
+        }
+
+        if(fornecedorDTO.getNomeFantasia().length() > 100){
+            throw new IllegalArgumentException("Nome fantasia deve conter até 100 caracteres");
+        }
+
+        if(StringUtils.isEmpty(fornecedorDTO.getEndereco())){
+            throw new IllegalArgumentException("Endereço não deve ser nulo/vazio");
+        }
+
+        if(fornecedorDTO.getEndereco().length() > 100){
+            throw new IllegalArgumentException("Endereço deve conter até 100 caracteres");
+        }
+
+        if(fornecedorDTO.getTelefoneContato() == null){
+            throw new IllegalArgumentException("Telefone não deve ser nulo");
+        }
+
+        if(fornecedorDTO.getTelefoneContato().length() != 13){
+            throw new IllegalArgumentException("Telefone deve conter 13 digitos");
+        }
+
+        if(StringUtils.isEmpty(fornecedorDTO.getEmailContato())){
+            throw new IllegalArgumentException("Email não deve ser nulo/vazio");
+        }
+
+        if(fornecedorDTO.getEmailContato().length() > 50){
+            throw new IllegalArgumentException("Email deve conter até 50 caracteres");
+        }
+    }
+
     public FornecedorDTO findByCnpj(String cnpj){
 
         Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findByCnpj(cnpj);
@@ -150,12 +167,10 @@ public class FornecedorService {
             FornecedorDTO fornecedorDTO = FornecedorDTO.of(fornecedor);
             return fornecedorDTO;
         }
-
         String format = String.format("Cnpj %s não existe", cnpj);
         throw new IllegalArgumentException(format);
     }
 
-    // ATIVIDADE 11
     public boolean findByIdFornecedor(Long id){
 
         boolean valida;
@@ -169,5 +184,13 @@ public class FornecedorService {
             return valida;
         }
 
+    }
+
+    /** FORMATAÇÕES GERAL */
+    public Fornecedor converterObjeto(FornecedorDTO fornecedorDTO){
+
+        Fornecedor fornecedor = new Fornecedor();
+        fornecedor.setId(fornecedorDTO.getId());
+        return fornecedor;
     }
 }

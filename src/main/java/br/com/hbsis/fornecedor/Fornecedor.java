@@ -2,9 +2,6 @@ package br.com.hbsis.fornecedor;
 
 import javax.persistence.*;
 
-/**
- * CLASSE RESPONSÁVEL PELO MAPEAMENTO DA ENTIDADE DO BANCO DE DADOS
- */
 @Entity
 @Table(name = "seg_fornecedores")
 public class Fornecedor {
@@ -25,7 +22,7 @@ public class Fornecedor {
     @Column(name = "email_contato", unique = true, nullable = false, length = 50)
     private String emailContato;
 
-    /* GETTER */
+    /** GETTER & SETTER*/
     public Long getId() { return id;}
 
     public String getRazaoSocial() { return razaoSocial; }
@@ -40,7 +37,6 @@ public class Fornecedor {
 
     public String getEmailContato() { return emailContato; }
 
-    /* SETTER */
     public void setId(Long id) {
         this.id = id;
     }
