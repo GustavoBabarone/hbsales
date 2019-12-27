@@ -1,4 +1,4 @@
-package br.com.hbsis.periodoVendas;
+package br.com.hbsis.periodovendas;
 
 import br.com.hbsis.fornecedor.Fornecedor;
 

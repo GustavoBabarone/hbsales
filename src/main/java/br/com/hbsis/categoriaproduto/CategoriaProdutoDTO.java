@@ -1,14 +1,14 @@
-package br.com.hbsis.categoriaProduto;
+package br.com.hbsis.categoriaproduto;
 
 public class CategoriaProdutoDTO {
 
-    /* ATRIBUTOS */
+    /** ATRIBUTOS */
     private Long id;
     private String codigoCategoria;
     private Long idFornecedor;
     private String nome;
 
-    /* CONSTRUTORES INICIO */
+    /** CONSTRUTORES */
     public CategoriaProdutoDTO() {
     }
 
@@ -24,13 +24,12 @@ public class CategoriaProdutoDTO {
 
                 categoriaProduto.getId(),
                 categoriaProduto.getCodigoCategoria(),
-                categoriaProduto.getFornecedor().getId(),// * TESTE *
+                categoriaProduto.getFornecedor().getId(),
                 categoriaProduto.getNome()
         );
     }
-    /* CONSTRUTORES FIM */
 
-    /* GETTER & SETTER INICIO */
+    /** GETTER & SETTER */
     public Long getId() {
         return id;
     }
@@ -62,7 +61,6 @@ public class CategoriaProdutoDTO {
     public void setNome(String nome) {
         this.nome = nome;
     }
-    /* GETTER & SETTER FIM */
 
     @Override
     public String toString() {

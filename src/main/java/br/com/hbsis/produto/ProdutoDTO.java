@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class ProdutoDTO {
 
-    /* ATRIBUTOS */
+    /** ATRIBUTOS */
     private Long id;
     private String codigoProduto;
     private String nome;
@@ -15,7 +15,7 @@ public class ProdutoDTO {
     private String unidadeDePeso;
     private Date validade;
 
-    /* CONSTRUTORES */
+    /** CONSTRUTORES */
     public ProdutoDTO() {
     }
 
@@ -48,7 +48,7 @@ public class ProdutoDTO {
         );
     }
 
-    /* GETTER & SETTER */
+    /** GETTER & SETTER */
     public Long getId() {
         return id;
     }

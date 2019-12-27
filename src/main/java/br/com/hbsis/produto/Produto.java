@@ -1,15 +1,15 @@
 package br.com.hbsis.produto;
 
-import br.com.hbsis.linhaCategoria.LinhaCategoria;
+import br.com.hbsis.linhacategoria.LinhaCategoria;
 
 import javax.persistence.*;
 import java.util.Date;
 
-@Entity // DEFINIR NOME DA TABELA QUE CORRESPONDE NO BANCO DE DADOS
+@Entity
 @Table(name = "seg_produtos")
 public class Produto {
 
-    @Id // 'id' COMO CHAVE PRIMÁRIA E COM AUTO-INCREMENT NO BANCO
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -38,7 +38,7 @@ public class Produto {
     @Column(name = "validade", unique = false, nullable = false, length = 10)
     private Date validade;
 
-    /* GETTER & SETTER */
+    /** GETTER & SETTER */
     public Long getId() {
         return id;
     }
