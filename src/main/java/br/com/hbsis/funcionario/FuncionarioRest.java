@@ -27,6 +27,6 @@ public class FuncionarioRest {
         LOGGER.info("Recebendo persistência de funcionário...");
         LOGGER.debug("Payload: {}", funcionarioDTO);
 
-        return this.funcionarioService.save(funcionarioDTO);
+        return this.funcionarioService.salvar(funcionarioDTO);
     }
 }

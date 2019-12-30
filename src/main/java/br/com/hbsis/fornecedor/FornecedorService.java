@@ -14,7 +14,7 @@ public class FornecedorService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FornecedorService.class);
     private final IFornecedorRepository iFornecedorRepository;
 
-    @Autowired /** CONTRUTOR */
+    @Autowired /** CONSTRUTOR */
     public FornecedorService(IFornecedorRepository iFornecedorRepository) {
         this.iFornecedorRepository = iFornecedorRepository;
     }
@@ -183,10 +183,25 @@ public class FornecedorService {
             valida = false;
             return valida;
         }
-
     }
 
     /** FORMATAÇÕES GERAL */
+    public String formatarCnpjFornecedor(String cnpj){
+
+        String cnpjFormatado =  cnpj.substring(0, 2)+ "."+cnpj.substring(2, 5)+"."+
+                cnpj.substring(5, 8)+ "/"+cnpj.substring(8, 12)+"-"+
+                cnpj.substring(12, 14);
+        return cnpjFormatado;
+    }
+
+    public String desformatarCnpjFornecedor(String cnpj) {
+
+        String cnpjDesformatado = ""+cnpj.charAt(0)+cnpj.charAt(1)+cnpj.charAt(3)+cnpj.charAt(4)+cnpj.charAt(5)+
+                cnpj.charAt(7)+cnpj.charAt(8)+cnpj.charAt(9)+cnpj.charAt(11)+cnpj.charAt(12)+
+                cnpj.charAt(13)+cnpj.charAt(14)+cnpj.charAt(16)+cnpj.charAt(17);
+        return cnpjDesformatado;
+    }
+
     public Fornecedor converterObjeto(FornecedorDTO fornecedorDTO){
 
         Fornecedor fornecedor = new Fornecedor();

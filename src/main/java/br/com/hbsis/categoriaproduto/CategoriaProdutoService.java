@@ -3,12 +3,19 @@ package br.com.hbsis.categoriaproduto;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorService;
+import com.opencsv.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +26,7 @@ public class CategoriaProdutoService {
     private final ICategoriaProdutoRepository iCategoriaProdutoRepository;
     private final FornecedorService fornecedorService;
 
-    @Autowired /** CONTRUTOR */
+    @Autowired /** CONSTRUTOR */
     public CategoriaProdutoService(ICategoriaProdutoRepository iCategoriaProdutoRepository, FornecedorService fornecedorService) {
         this.iCategoriaProdutoRepository = iCategoriaProdutoRepository;
         this.fornecedorService = fornecedorService;
@@ -63,17 +70,15 @@ public class CategoriaProdutoService {
             LOGGER.debug("Categoria Existente: {}", categoriaProdutoExistente);
 
             FornecedorDTO fornecedorDTO = fornecedorService.findById(categoriaProdutoDTO.getIdFornecedor());
+            Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
+            categoriaProdutoExistente.setFornecedor(fornecedor);
 
             String codigoFinal = formatarCodigoCategoria(categoriaProdutoDTO.getCodigoCategoria().toUpperCase(), fornecedorDTO.getCnpj());
             categoriaProdutoExistente.setCodigoCategoria(codigoFinal);
 
-            Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
-            categoriaProdutoExistente.setFornecedor(fornecedor);
-
             categoriaProdutoExistente.setNome(categoriaProdutoDTO.getNome());
 
             categoriaProdutoExistente = this.iCategoriaProdutoRepository.save(categoriaProdutoExistente);
-
             return CategoriaProdutoDTO.of(categoriaProdutoExistente);
         }
         throw new IllegalArgumentException(String.format("Id %s não existe", id));
@@ -179,20 +184,71 @@ public class CategoriaProdutoService {
     }
 
     /** CSV - EXPORTAR E IMPORTAR */
-    public List<CategoriaProduto> obterCategorias(){
-        return this.iCategoriaProdutoRepository.findAll();
+    public void exportarCategoria(HttpServletResponse response) throws Exception {
+
+        String arquivoCSV = "categoriaProduto.csv";
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivoCSV + "\"");
+
+        PrintWriter writer = response.getWriter();
+        ICSVWriter icsvWriter = new CSVWriterBuilder(writer).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
+
+        String[] cabecalhoCSV = {"codigo", "nome", "razao_social", "cnpj"};
+        icsvWriter.writeNext(cabecalhoCSV);
+
+        for(CategoriaProduto rows : iCategoriaProdutoRepository.findAll()){
+
+            icsvWriter.writeNext(new String[]{
+                    rows.getCodigoCategoria(),
+                    rows.getNome(),
+                    rows.getFornecedor().getRazaoSocial(),
+                    fornecedorService.formatarCnpjFornecedor(rows.getFornecedor().getCnpj()),
+            });
+        }
+        LOGGER.info("Finalizando exportação de produto...");
     }
 
-    public List<CategoriaProduto> salvarCategorias(List<CategoriaProduto> categoriaProdutoList){
-        return this.iCategoriaProdutoRepository.saveAll(categoriaProdutoList);
+    public List<CategoriaProduto> importarCategoria(MultipartFile file) throws Exception {
+
+        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
+        CSVReader leitor = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
+
+        List<String[]> row = leitor.readAll();
+        List<CategoriaProduto> categoriaProdutoList = new ArrayList<>();
+
+        for(String[] linha : row){
+
+            String[] vetor = linha[0].replaceAll("\"", "").split(";");
+
+            CategoriaProduto categoriaProduto = new CategoriaProduto();
+            boolean valida = findByCodigo(vetor[0]);
+
+            if(valida == false) {
+
+                categoriaProduto.setCodigoCategoria(vetor[0]);
+                categoriaProduto.setNome(vetor[1]);
+
+                String cnpjDesformatado = fornecedorService.desformatarCnpjFornecedor(vetor[3]);
+                FornecedorDTO fornecedorDTO = fornecedorService.findByCnpj(cnpjDesformatado);
+                Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
+                categoriaProduto.setFornecedor(fornecedor);
+
+                categoriaProdutoList.add(categoriaProduto);
+
+            }else if(valida == true){
+                LOGGER.info("Categoria já existente no banco de dados...");
+            }
+        }
+        LOGGER.info("Finalizando importação de categoria...");
+        return iCategoriaProdutoRepository.saveAll(categoriaProdutoList);
+    }
+
+    /** CSV - IMPORTAR POR FORNECEDOR - ATIVIDADE 11 */
+    public CategoriaProduto executarSaveNaRepository(CategoriaProduto categoriaProduto){
+        return this.iCategoriaProdutoRepository.save(categoriaProduto);
+    }
+
+    public Optional<CategoriaProduto> findByCodigoCategoriaImportProdutoPorFornecedor(String codigoCategoria){
+        return this.iCategoriaProdutoRepository.findByCodigoCategoria(codigoCategoria);
     }
 }
-
-
-
-
-
-
-
-
-

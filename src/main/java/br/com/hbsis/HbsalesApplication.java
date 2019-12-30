@@ -12,12 +12,11 @@ public class HbsalesApplication {
 		SpringApplication.run(HbsalesApplication.class, args);
 	}
 
-	/* CRIAR 'Bean Rest Template' PARA CONECTAR AUTOMATICAMENTE O OBJETO 'Rest Template' */
+	/** CRIAR 'Bean Rest Template' PARA CONECTAR AUTOMATICAMENTE O OBJETO 'Rest Template' */
 	@Bean
 	public RestTemplate getRestTemplate() {
 		return new RestTemplate();
 	}
-
 }
 
 

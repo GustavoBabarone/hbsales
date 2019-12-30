@@ -17,6 +17,7 @@ public class FornecedorRest {
         this.fornecedorService = fornecedorService;
     }
 
+    /** MÉTODOS */
     @PostMapping
     public FornecedorDTO save(@RequestBody FornecedorDTO fornecedorDTO){
 
@@ -35,7 +36,7 @@ public class FornecedorRest {
     @PutMapping("/{id}")
     public FornecedorDTO update(@PathVariable("id") Long id, @RequestBody FornecedorDTO fornecedorDTO){
 
-        LOGGER.info("Recebendo Update para fornecedor de ID: {}", id);
+        LOGGER.info("Recebendo update para fornecedor de id: {}", id);
         LOGGER.debug("PayLoad: {}", fornecedorDTO);
         return this.fornecedorService.atualizar(fornecedorDTO, id);
     }
@@ -43,7 +44,7 @@ public class FornecedorRest {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id){
 
-        LOGGER.info("Recebendo delete para fornecedor de ID: {}", id);
+        LOGGER.info("Recebendo delete para fornecedor de id: {}", id);
         this.fornecedorService.deletar(id);
     }
 
