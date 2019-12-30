@@ -54,7 +54,7 @@ public class PedidoService {
         pedido.setFornecedor(fornecedor);
 
         FuncionarioDTO funcionarioDTO = funcionarioService.findById(pedidoDTO.getIdFuncionario());
-        Funcionario funcionario = funcionarioService.conversor(funcionarioDTO);
+        Funcionario funcionario = funcionarioService.converterObjeto(funcionarioDTO);
         pedido.setFuncionario(funcionario);
 
         pedido.setPrecoTotal(pedidoDTO.getPrecoTotal());

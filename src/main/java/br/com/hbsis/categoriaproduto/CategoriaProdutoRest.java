@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/categorias")
@@ -17,10 +20,11 @@ public class CategoriaProdutoRest {
         this.categoriaProdutoService = categoriaProdutoService;
     }
 
+    /** MÉTODOS */
     @PostMapping
     public CategoriaProdutoDTO save(@RequestBody CategoriaProdutoDTO categoriaProdutoDTO) {
 
-        LOGGER.info("Recebendo solicitação de persistência de categoria...");
+        LOGGER.info("Recebendo save para categoria de produto...");
         LOGGER.debug("Payload: {}", categoriaProdutoDTO);
         return this.categoriaProdutoService.salvar(categoriaProdutoDTO);
     }
@@ -28,7 +32,7 @@ public class CategoriaProdutoRest {
     @GetMapping("/{id}")
     public CategoriaProdutoDTO find(@PathVariable("id") Long id){
 
-        LOGGER.info("Recebendo find by id... id: [{}]", id);
+        LOGGER.info("Recebendo findById... id: [{}]", id);
         return this.categoriaProdutoService.findById(id);
     }
 
@@ -45,5 +49,21 @@ public class CategoriaProdutoRest {
 
         LOGGER.info("Recebendo delete para categoria de id: {}", id);
         this.categoriaProdutoService.deletar(id);
+    }
+
+    /** ATIVIDADE 3 */
+    @GetMapping("/export-categoria-produto")
+    public void exportCategoriaProduto(HttpServletResponse response) throws Exception {
+
+        LOGGER.info("Recebendo exportação para CSV categoria produto... ");
+        this.categoriaProdutoService.exportarCategoria(response);
+    }
+
+    /** ATIVIDADE 4 */
+    @PostMapping("/import-categoria-produto")
+    public void importCategoriaProduto(@RequestParam("file") MultipartFile arquivo) throws Exception {
+
+        LOGGER.info("Recebendo importação de um CSV categoria produto...");
+        this.categoriaProdutoService.importarCategoria(arquivo);
     }
 }

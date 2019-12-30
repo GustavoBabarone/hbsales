@@ -20,6 +20,7 @@ public class ProdutoRest {
         this.produtoService = produtoService;
     }
 
+    /** MÉTODOS */
     @PostMapping
     public ProdutoDTO save(@RequestBody ProdutoDTO produtoDTO) {
 
@@ -50,5 +51,27 @@ public class ProdutoRest {
         this.produtoService.deletar(id);
     }
 
+    /** ATIVIDADE 9 */
+    @GetMapping("/export-produto")
+    public void exportProduto(HttpServletResponse file) throws Exception {
 
+        LOGGER.info("Recebendo exportação para CSV produto...");
+        this.produtoService.exportarProduto(file);
+    }
+
+    /** ATIVIDADE 10 */
+    @PostMapping("/import-produto")
+    public void importProduto(@RequestParam("file")MultipartFile arquivo) throws Exception {
+
+        LOGGER.info("Recebendo importação de um CSV produto...");
+        this.produtoService.importarProduto(arquivo);
+    }
+
+    /** ATIVIDADE 11 */
+    @PostMapping("/import-produtos-por-fornecedor/{id}")
+    public void importProdutoPorFornecedor(@RequestParam("file")MultipartFile arquivo, @PathVariable("id") Long id) throws Exception {
+
+        LOGGER.info("Recebendo importação de um CSV produto por fornecedor... id: [{}]", id);
+        this.produtoService.importarProdutoPorFornecedor(arquivo, id);
+    }
 }
