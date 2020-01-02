@@ -1,5 +1,6 @@
 package br.com.hbsis.categoriaproduto;
 
+import br.com.hbsis.csv.CSV;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorService;
@@ -8,13 +9,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +24,13 @@ public class CategoriaProdutoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaProdutoService.class);
     private final ICategoriaProdutoRepository iCategoriaProdutoRepository;
     private final FornecedorService fornecedorService;
+    private final CSV csv;
 
     @Autowired /** CONSTRUTOR */
-    public CategoriaProdutoService(ICategoriaProdutoRepository iCategoriaProdutoRepository, FornecedorService fornecedorService) {
+    public CategoriaProdutoService(ICategoriaProdutoRepository iCategoriaProdutoRepository, FornecedorService fornecedorService, CSV csv) {
         this.iCategoriaProdutoRepository = iCategoriaProdutoRepository;
         this.fornecedorService = fornecedorService;
+        this.csv = csv;
     }
 
     /** MÉTODOS DE CRUD */
@@ -187,14 +188,8 @@ public class CategoriaProdutoService {
     public void exportarCategoria(HttpServletResponse response) throws Exception {
 
         String arquivoCSV = "categoriaProduto.csv";
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivoCSV + "\"");
-
-        PrintWriter writer = response.getWriter();
-        ICSVWriter icsvWriter = new CSVWriterBuilder(writer).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-
         String[] cabecalhoCSV = {"codigo", "nome", "razao_social", "cnpj"};
-        icsvWriter.writeNext(cabecalhoCSV);
+        ICSVWriter icsvWriter = csv.padraoExportarCsv(response, arquivoCSV, cabecalhoCSV);
 
         for(CategoriaProduto rows : iCategoriaProdutoRepository.findAll()){
 
@@ -210,10 +205,7 @@ public class CategoriaProdutoService {
 
     public List<CategoriaProduto> importarCategoria(MultipartFile file) throws Exception {
 
-        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-        CSVReader leitor = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
-
-        List<String[]> row = leitor.readAll();
+        List<String[]> row = csv.padraoImportarCsv(file);
         List<CategoriaProduto> categoriaProdutoList = new ArrayList<>();
 
         for(String[] linha : row){

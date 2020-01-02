@@ -3,6 +3,7 @@ package br.com.hbsis.produto;
 import br.com.hbsis.categoriaproduto.CategoriaProduto;
 import br.com.hbsis.categoriaproduto.CategoriaProdutoDTO;
 import br.com.hbsis.categoriaproduto.CategoriaProdutoService;
+import br.com.hbsis.csv.CSV;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorService;
@@ -38,13 +39,15 @@ public class ProdutoService {
     private final FornecedorService fornecedorService;
     private final CategoriaProdutoService categoriaProdutoService;
     private final LinhaCategoriaService linhaCategoriaService;
+    private final CSV csv;
 
     @Autowired /** CONSTRUTOR */
-    public ProdutoService(IProdutoRepository iProdutoRepository, FornecedorService fornecedorService, CategoriaProdutoService categoriaProdutoService, LinhaCategoriaService linhaCategoriaService) {
+    public ProdutoService(IProdutoRepository iProdutoRepository, FornecedorService fornecedorService, CategoriaProdutoService categoriaProdutoService, LinhaCategoriaService linhaCategoriaService, CSV csv) {
         this.iProdutoRepository = iProdutoRepository;
         this.fornecedorService = fornecedorService;
         this.categoriaProdutoService = categoriaProdutoService;
         this.linhaCategoriaService = linhaCategoriaService;
+        this.csv = csv;
     }
 
     /** MÉTODOS DE CRUD */
@@ -266,15 +269,9 @@ public class ProdutoService {
     public void exportarProduto(HttpServletResponse response) throws Exception {
 
         String arquivoCSV = "produtos.csv";
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivoCSV + "\"");
-
-        PrintWriter writer = response.getWriter();
-        ICSVWriter icsvWriter = new CSVWriterBuilder(writer).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-
         String[] cabecalhoCSV = {"codigo", "nome", "preco", "unidade_caixa", "peso_unidade", "validade",
                 "codigo_linha", "nome_linha", "codigo_categoria", "nome_categoria", "cnpj_fornecedor", "razao_social_fornecedor"};
-        icsvWriter.writeNext(cabecalhoCSV);
+        ICSVWriter icsvWriter = csv.padraoExportarCsv(response, arquivoCSV, cabecalhoCSV);
 
         for(Produto rows : iProdutoRepository.findAll()){
 
@@ -299,10 +296,7 @@ public class ProdutoService {
 
     public List<Produto> importarProduto(MultipartFile file) throws Exception {
 
-        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-        CSVReader leitor = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
-
-        List<String[]> row = leitor.readAll();
+       List<String[]> row = csv.padraoImportarCsv(file);
         List<Produto> produtoList = new ArrayList<>();
 
         for(String[] linha : row){
@@ -410,9 +404,6 @@ public class ProdutoService {
                         /** NÃO TEM CATEGORIA CADASTRADA? -> CADASTRA CATEGORIA */
                         salvarCategoriaNoImportarPorFornecedor(codigoCategoria, nomeCategoria, cnpjFornecedor);
                     }
-
-                    LOGGER.info("Fornecedor de id [{}] não pertence ao produto de id do fornecedor [{}]", fornecedorService.findByCnpj(cnpjFornecedor).getId(), idFornecedor);
-
                 }
 
             }else if(validaFornecedor == false){
