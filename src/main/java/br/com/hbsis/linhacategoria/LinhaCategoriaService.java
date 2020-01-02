@@ -3,6 +3,7 @@ package br.com.hbsis.linhacategoria;
 import br.com.hbsis.categoriaproduto.CategoriaProduto;
 import br.com.hbsis.categoriaproduto.CategoriaProdutoDTO;
 import br.com.hbsis.categoriaproduto.CategoriaProdutoService;
+import br.com.hbsis.csv.CSV;
 import com.opencsv.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -25,11 +26,13 @@ public class LinhaCategoriaService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinhaCategoriaService.class);
     private final ILinhaCategoriaRepository iLinhaCategoriaRepository;
     private final CategoriaProdutoService categoriaProdutoService;
+    private final CSV csv;
 
     @Autowired /** CONSTRUTOR */
-    public LinhaCategoriaService(ILinhaCategoriaRepository iLinhaCategoriaRepository, CategoriaProdutoService categoriaProdutoService) {
+    public LinhaCategoriaService(ILinhaCategoriaRepository iLinhaCategoriaRepository, CategoriaProdutoService categoriaProdutoService, CSV csv) {
         this.iLinhaCategoriaRepository = iLinhaCategoriaRepository;
         this.categoriaProdutoService = categoriaProdutoService;
+        this.csv = csv;
     }
 
     /** MÉTODOS DE CRUD */
@@ -178,14 +181,8 @@ public class LinhaCategoriaService {
     public void exportarLinha(HttpServletResponse response) throws  Exception {
 
         String arquivoCSV = "linhaCategoria.csv";
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + arquivoCSV + "\"");
-
-        PrintWriter writer = response.getWriter();
-        ICSVWriter icsvWriter = new CSVWriterBuilder(writer).withSeparator(';').withEscapeChar(CSVWriter.DEFAULT_ESCAPE_CHARACTER).withLineEnd(CSVWriter.DEFAULT_LINE_END).build();
-
         String[] cabecalhoCSV = {"codigo_linha", "nome_linha", "codigo_categoria", "nome_categoria"};
-        icsvWriter.writeNext(cabecalhoCSV);
+        ICSVWriter icsvWriter = csv.padraoExportarCsv(response, arquivoCSV, cabecalhoCSV);
 
         for(LinhaCategoria rows : iLinhaCategoriaRepository.findAll()){
 
@@ -201,10 +198,7 @@ public class LinhaCategoriaService {
 
     public List<LinhaCategoria> importarLinha(MultipartFile file) throws Exception {
 
-        InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
-        CSVReader leitor = new CSVReaderBuilder(inputStreamReader).withSkipLines(1).build();
-
-        List<String[]> row = leitor.readAll();
+        List<String[]> row = csv.padraoImportarCsv(file);
         List<LinhaCategoria> linhaCategoriaList = new ArrayList<>();
 
         for(String[] linha : row){

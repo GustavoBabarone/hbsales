@@ -20,7 +20,7 @@ public class PeriodoVendasRest {
     @PostMapping
     public PeriodoVendasDTO save(@RequestBody PeriodoVendasDTO periodoVendasDTO){
 
-        LOGGER.info("Recebendo solicitação de persistência de periodo de vendas...");
+        LOGGER.info("Recebendo save de periodo de vendas...");
         LOGGER.debug("Payload: {}", periodoVendasDTO);
         return this.periodoVendasService.salvar(periodoVendasDTO);
     }

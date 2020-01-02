@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -122,20 +123,43 @@ public class PeriodoVendasService {
             throw new IllegalArgumentException("Descricao não deve ser nula/vazia.");
         }
 
-        if(periodoVendasDTO.getDataFim().isBefore(LocalDate.now())){
+        /** VALIDAÇÃO DAS DATAS */
+        validarDatasInicioFim(periodoVendasDTO);
+    }
+
+    public void validarDatasInicioFim(PeriodoVendasDTO periodoVendasDTO) {
+
+        List<PeriodoVendas> periodoVendasList = this.iPeriodoVendasRepository.findAllByFornecedor_Id(periodoVendasDTO.getIdFornecedor());
+
+        if (periodoVendasDTO.getDataFim().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Data de fim não pode ser anterior a hoje.");
         }
 
-        if(periodoVendasDTO.getDataInicio().isBefore(LocalDate.now())){
+        if (periodoVendasDTO.getDataInicio().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Data de inicio não pode ser anterior a hoje.");
         }
 
-        if(periodoVendasDTO.getDataFim().isBefore(periodoVendasDTO.getDataInicio())){
+        if (periodoVendasDTO.getDataFim().isBefore(periodoVendasDTO.getDataInicio())) {
             throw new IllegalArgumentException("Data de fim não pode ser anterior a data de inicio.");
         }
 
-        if(iPeriodoVendasRepository.existeDataAberta(periodoVendasDTO.getDataInicio(), periodoVendasDTO.getIdFornecedor()) >= 1){
-            throw new IllegalArgumentException("Há outro periodo de vendas em aberto!");
+        for(PeriodoVendas periodoVendas : periodoVendasList){
+
+            if (periodoVendasDTO.getDataInicio().isAfter(periodoVendas.getDataInicio()) && periodoVendasDTO.getDataFim().isBefore(periodoVendas.getDataFim())) {
+                throw new IllegalArgumentException("Caso 01");
+            }
+
+            if (periodoVendasDTO.getDataInicio().isBefore(periodoVendas.getDataInicio()) && periodoVendasDTO.getDataFim().isAfter(periodoVendas.getDataFim())) {
+                throw new IllegalArgumentException("Caso 02");
+            }
+
+            if (periodoVendasDTO.getDataInicio().isBefore(periodoVendas.getDataInicio()) && periodoVendasDTO.getDataFim().isAfter(periodoVendas.getDataInicio())) {
+                throw new IllegalArgumentException("Caso 03");
+            }
+
+            if (periodoVendasDTO.getDataInicio().isBefore(periodoVendas.getDataFim()) && periodoVendasDTO.getDataFim().isAfter(periodoVendas.getDataFim())) {
+                throw new IllegalArgumentException("Caso 04");
+            }
         }
     }
 }
