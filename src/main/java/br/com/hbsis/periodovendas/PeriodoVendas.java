@@ -29,7 +29,7 @@ public class PeriodoVendas {
     @Column(name = "descricao", unique = false, length = 50, nullable = false)
     private String descricao;
 
-    /* GETTER & SETTER */
+    /** GETTER & SETTER */
     public Long getId() {
         return id;
     }
