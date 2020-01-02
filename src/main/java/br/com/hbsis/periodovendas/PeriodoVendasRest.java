@@ -10,11 +10,9 @@ import org.springframework.web.bind.annotation.*;
 public class PeriodoVendasRest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PeriodoVendasRest.class);
-
     private final PeriodoVendasService periodoVendasService;
 
-    /* CONSTRUTOR */
-    @Autowired
+    @Autowired /** CONSTRUTOR */
     public PeriodoVendasRest(PeriodoVendasService periodoVendasService) {
         this.periodoVendasService = periodoVendasService;
     }
@@ -24,15 +22,13 @@ public class PeriodoVendasRest {
 
         LOGGER.info("Recebendo solicitação de persistência de periodo de vendas...");
         LOGGER.debug("Payload: {}", periodoVendasDTO);
-
-        return this.periodoVendasService.save(periodoVendasDTO);
+        return this.periodoVendasService.salvar(periodoVendasDTO);
     }
 
     @GetMapping("/{id}")
     public PeriodoVendasDTO find(@PathVariable("id") Long id){
 
-        LOGGER.info("Recebendo find... id: [{}]", id);
-
+        LOGGER.info("Recebendo findById... id: [{}]", id);
         return this.periodoVendasService.findById(id);
     }
 
@@ -41,15 +37,13 @@ public class PeriodoVendasRest {
 
         LOGGER.info("Recebendo update para periodo de vendas de id: [{}]", id);
         LOGGER.debug("Payload: {}", periodoVendasDTO);
-
-        return this.periodoVendasService.update(periodoVendasDTO, id);
+        return this.periodoVendasService.atualizar(periodoVendasDTO, id);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id){
 
         LOGGER.info("Recebendo delete para periodo de vendas de id: {}");
-
-        this.periodoVendasService.delete(id);
+        this.periodoVendasService.deletar(id);
     }
 }
