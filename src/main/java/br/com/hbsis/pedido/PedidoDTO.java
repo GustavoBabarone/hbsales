@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class PedidoDTO {
 
-    /* ATRIBUTOS */
+    /** ATRIBUTOS */
     private Long id;
     private String codigoPedido;
     private Long idFuncionario;
@@ -13,7 +13,7 @@ public class PedidoDTO {
     private String status;
     private LocalDate dataRegistro;
 
-    /* CONSTRUTORES */
+    /** CONSTRUTORES */
     public PedidoDTO() {
     }
 
@@ -40,7 +40,7 @@ public class PedidoDTO {
         );
     }
 
-    /* GETTER & SETTER */
+    /** GETTER & SETTER */
     public Long getId() {
         return id;
     }

@@ -36,7 +36,7 @@ public class PedidoService {
         this.funcionarioService = funcionarioService;
     }
 
-    public PedidoDTO save(PedidoDTO pedidoDTO) {
+    public PedidoDTO salvar(PedidoDTO pedidoDTO) {
 
         this.validate(pedidoDTO);
 
