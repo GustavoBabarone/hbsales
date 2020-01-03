@@ -17,17 +17,16 @@ public class PedidoRest {
     public static final Logger LOGGER = LoggerFactory.getLogger(PedidoRest.class);
     public final PedidoService pedidoService;
 
-    @Autowired
+    @Autowired /** CONSTRUTOR */
     public PedidoRest(PedidoService pedidoService) {
         this.pedidoService = pedidoService;
     }
 
     @PostMapping
-    public PedidoDTO save(@RequestBody PedidoDTO pedidoDTO) throws ParseException {
+    public PedidoDTO save(@RequestBody PedidoDTO pedidoDTO) {
 
-        LOGGER.info("Recebendo requisição de cadastro de pedido...");
+        LOGGER.info("Recebendo save de pedido...");
         LOGGER.debug("Payload... {}", pedidoDTO);
-
-        return this.pedidoService.save(pedidoDTO);
+        return this.pedidoService.salvar(pedidoDTO);
     }
 }
