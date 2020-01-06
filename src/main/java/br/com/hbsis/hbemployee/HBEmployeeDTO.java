@@ -2,11 +2,11 @@ package br.com.hbsis.hbemployee;
 
 public class HBEmployeeDTO {
 
-    /* ATRIBUTOS */
+    /** ATRIBUTOS */
     private String employeeUuid;
     private String employeeName;
 
-    /* CONSTRUTORES */
+    /** CONSTRUTORES */
     public HBEmployeeDTO() {
     }
 
@@ -15,7 +15,7 @@ public class HBEmployeeDTO {
         this.employeeName = employeeName;
     }
 
-    /* GETTER & SETTER */
+    /** GETTER & SETTER */
     public String getEmployeeUuid() {
         return employeeUuid;
     }

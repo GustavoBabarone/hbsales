@@ -33,13 +33,14 @@ public class AtendenteService {
         atendente.setNome("Teste");
         atendente.setEmail("teste@gmail.com");
         atendente.setSenha("teste");
+        atendente.setFoto("thanos.png");
 
-        try {
-            Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getName() + ".png"));
-            atendente.setFoto(file.getName());
-        } catch (Exception e) {
-            LOGGER.error("Erro no upload: "+e.getMessage());
-        }
+//        try {
+//            Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getName() + ".png"));
+//            atendente.setFoto(file.getName());
+//        } catch (Exception e) {
+//            LOGGER.error("Erro no upload: "+e.getMessage());
+//        }
 
         atendente = this.iAtendenteRepository.save(atendente);
         return AtendenteDTO.of(atendente);
