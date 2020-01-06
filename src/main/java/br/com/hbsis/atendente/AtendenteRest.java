@@ -18,13 +18,13 @@ public class AtendenteRest {
         this.atendenteService = atendenteService;
     }
 
-    @PostMapping /** MÉTODOS */
-    public AtendenteDTO save(@RequestParam("file") MultipartFile file){
-
-        LOGGER.info("Recebendo save para atendente... nome do file: ", file.getOriginalFilename());
-        LOGGER.debug("Payload... nome do file: {}", file.getName());
-
-        //files.add(file.getOriginalFilename());
-        return this.atendenteService.save(file);
-    }
+//    @PostMapping /** MÉTODOS */
+//    public AtendenteDTO save(@RequestParam("file") MultipartFile file){
+//
+//        LOGGER.info("Recebendo save para atendente... nome do file: ", file.getOriginalFilename());
+//        LOGGER.debug("Payload... nome do file: {}", file.getName());
+//
+//        //files.add(file.getOriginalFilename());
+//        return this.atendenteService.save(file);
+//    }
 }
