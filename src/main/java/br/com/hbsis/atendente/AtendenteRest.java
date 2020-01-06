@@ -18,8 +18,7 @@ public class AtendenteRest {
         this.atendenteService = atendenteService;
     }
 
-    /** MÉTODOS */
-    @PostMapping
+    @PostMapping /** MÉTODOS */
     public AtendenteDTO save(@RequestParam("file") MultipartFile file){
 
         LOGGER.info("Recebendo save para atendente... nome do file: ", file.getOriginalFilename());
