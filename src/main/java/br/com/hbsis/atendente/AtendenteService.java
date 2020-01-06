@@ -16,33 +16,26 @@ public class AtendenteService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AtendenteService.class);
     private final IAtendenteRepository iAtendenteRepository;
 
-    private final Path rootLocation = Paths.get("img");
-
     @Autowired /** CONSTRUTOR */
     public AtendenteService(IAtendenteRepository iAtendenteRepository) {
         this.iAtendenteRepository = iAtendenteRepository;
     }
 
     /** MÉTODOS DE CRUD */
-    public AtendenteDTO save(MultipartFile file) {
+    public AtendenteDTO save(MultipartFile file, String nome, String email, String senha) {
 
         LOGGER.info("Salvando atendente");
         LOGGER.debug("Atendente... name: {}", file.getName());
 
         Atendente atendente = new Atendente();
-        atendente.setNome("Teste");
-        atendente.setEmail("teste@gmail.com");
-        atendente.setSenha("teste");
-        atendente.setFoto("thanos.png");
-
-//        try {
-//            Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getName() + ".png"));
-//            atendente.setFoto(file.getName());
-//        } catch (Exception e) {
-//            LOGGER.error("Erro no upload: "+e.getMessage());
-//        }
+        atendente.setNome(nome);
+        atendente.setEmail(email);
+        atendente.setSenha(senha);
+        atendente.setFoto(file.getOriginalFilename());
 
         atendente = this.iAtendenteRepository.save(atendente);
+
+        LOGGER.info("Finalizando save do atendente! DEU BOM");
         return AtendenteDTO.of(atendente);
     }
 }
