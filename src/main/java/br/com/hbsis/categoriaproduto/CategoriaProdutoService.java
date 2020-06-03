@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -197,7 +196,7 @@ public class CategoriaProdutoService {
                     rows.getCodigoCategoria(),
                     rows.getNome(),
                     rows.getFornecedor().getRazaoSocial(),
-                    fornecedorService.formatarCnpjFornecedor(rows.getFornecedor().getCnpj()),
+                    fornecedorService.formatarCnpj(rows.getFornecedor().getCnpj()),
             });
         }
         LOGGER.info("Finalizando exportação de produto...");
@@ -220,7 +219,7 @@ public class CategoriaProdutoService {
                 categoriaProduto.setCodigoCategoria(vetor[0]);
                 categoriaProduto.setNome(vetor[1]);
 
-                String cnpjDesformatado = fornecedorService.desformatarCnpjFornecedor(vetor[3]);
+                String cnpjDesformatado = fornecedorService.desformatarCnpj(vetor[3]);
                 FornecedorDTO fornecedorDTO = fornecedorService.findByCnpj(cnpjDesformatado);
                 Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
                 categoriaProduto.setFornecedor(fornecedor);

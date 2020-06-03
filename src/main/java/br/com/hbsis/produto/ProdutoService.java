@@ -15,13 +15,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -287,7 +285,7 @@ public class ProdutoService {
                     rows.getLinhaCategoria().getNome(),
                     rows.getLinhaCategoria().getCategoriaProduto().getCodigoCategoria(),
                     rows.getLinhaCategoria().getCategoriaProduto().getNome(),
-                    fornecedorService.formatarCnpjFornecedor(rows.getLinhaCategoria().getCategoriaProduto().getFornecedor().getCnpj()),
+                    fornecedorService.formatarCnpj(rows.getLinhaCategoria().getCategoriaProduto().getFornecedor().getCnpj()),
                     rows.getLinhaCategoria().getCategoriaProduto().getFornecedor().getRazaoSocial()
             });
         }
@@ -357,7 +355,7 @@ public class ProdutoService {
             String nomeLinha = vetor[7];
             String codigoCategoria = vetor[8].toUpperCase();
             String nomeCategoria = vetor[9];
-            String cnpjFornecedor = fornecedorService.desformatarCnpjFornecedor(vetor[10]);
+            String cnpjFornecedor = fornecedorService.desformatarCnpj(vetor[10]);
             // String razaoSocialFornecedor = vetor[11]; -> Não utilizada
 
             boolean validaProduto = findByCodigoProduto(codigoProduto);
