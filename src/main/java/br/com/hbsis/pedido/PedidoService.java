@@ -50,8 +50,7 @@ public class PedidoService {
         pedido.setCodigoPedido(pedidoDTOparam.getCodigoPedido());
 
         FornecedorDTO fornecedorDTO = fornecedorService.findById(pedidoDTO.getIdFornecedor());
-        Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
-        pedido.setFornecedor(fornecedor);
+        pedido.setFornecedor(Fornecedor.of(fornecedorDTO));
 
         FuncionarioDTO funcionarioDTO = funcionarioService.findById(pedidoDTO.getIdFuncionario());
         Funcionario funcionario = funcionarioService.converterObjeto(funcionarioDTO);
