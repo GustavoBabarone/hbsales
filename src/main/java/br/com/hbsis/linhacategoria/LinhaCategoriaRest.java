@@ -15,56 +15,51 @@ public class LinhaCategoriaRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinhaCategoriaRest.class);
     private final LinhaCategoriaService linhaCategoriaService;
 
-    @Autowired /** CONTRUTOR */
+    @Autowired
     public LinhaCategoriaRest(LinhaCategoriaService linhaCategoriaService) {
         this.linhaCategoriaService = linhaCategoriaService;
     }
 
-    /** MÉTODOS */
     @PostMapping
     public LinhaCategoriaDTO save(@RequestBody LinhaCategoriaDTO linhaCategoriaDTO) {
 
-        LOGGER.info("Recebendo solicitação de persistência de linha de categoria...");
-        LOGGER.debug("Payload: {}", linhaCategoriaDTO);
+        LOGGER.info("Recebendo save de linha de categoria");
         return this.linhaCategoriaService.salvar(linhaCategoriaDTO);
     }
 
     @GetMapping("/{id}")
     public LinhaCategoriaDTO find(@PathVariable("id") Long id){
 
-        LOGGER.info("Recebedendo findById... id: [{}]", id);
+        LOGGER.info("Recebedendo findById para linha de categoria de id: [{}]", id);
         return this.linhaCategoriaService.findById(id);
     }
 
     @PutMapping("/{id}")
     public LinhaCategoriaDTO update(@PathVariable("id") Long id, @RequestBody LinhaCategoriaDTO linhaCategoriaDTO) {
 
-        LOGGER.info("Recebendo update para linha de categoria de id: {}", id);
-        LOGGER.debug("Payload: {}", linhaCategoriaDTO);
+        LOGGER.info("Recebendo update para linha de categoria de id: [{}]", id);
         return this.linhaCategoriaService.atualizar(linhaCategoriaDTO, id);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id){
 
-        LOGGER.info("Recebendo delete para categoria de id: {}", id);
+        LOGGER.info("Recebendo delete para linah de categoria de id: [{}]", id);
         this.linhaCategoriaService.deletar(id);
     }
 
-    /** ATIVIDADE 6 */
     @GetMapping("/export-linha-categoria")
     public void exportLinhaCategoria(HttpServletResponse response) throws Exception {
 
-        LOGGER.info("Recebendo exportação para CSV linha categoria... ");
-        this.linhaCategoriaService.exportarLinha(response);
+        LOGGER.info("Recebendo exportação de CSV linha de categoria");
+        this.linhaCategoriaService.exportar(response);
     }
 
-    /** ATIVIDADE 7 */
     @PostMapping("/import-linha-categoria")
     public void importLinhaCategoria(@RequestParam("file") MultipartFile arquivo) throws Exception {
 
-        LOGGER.info("Recebendo importação de um CSV linha categoria...");
-        this.linhaCategoriaService.importarLinha(arquivo);
+        LOGGER.info("Recebendo importação de CSV linha de categoria");
+        this.linhaCategoriaService.importar(arquivo);
     }
 }
 
