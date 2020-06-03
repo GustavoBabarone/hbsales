@@ -189,18 +189,8 @@ public class FornecedorService {
                 .replace("-", "");
     }
 
-    public boolean findByIdFornecedor(Long id){
-
-        boolean valida;
-        Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findById(id);
-
-        if(fornecedorOptional.isPresent()){
-            valida = true;
-            return valida;
-        }else {
-            valida = false;
-            return valida;
-        }
+    public boolean existsById(Long id){
+        return this.iFornecedorRepository.existsById(id);
     }
 
 }
