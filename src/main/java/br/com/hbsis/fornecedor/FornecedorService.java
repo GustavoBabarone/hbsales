@@ -203,7 +203,4 @@ public class FornecedorService {
         }
     }
 
-    public Fornecedor converterObjeto(FornecedorDTO fornecedorDTO){
-        return Fornecedor.of(fornecedorDTO);
-    }
 }
