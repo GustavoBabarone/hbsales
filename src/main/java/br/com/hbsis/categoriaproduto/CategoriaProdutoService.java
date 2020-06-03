@@ -144,18 +144,8 @@ public class CategoriaProdutoService {
         throw new IllegalArgumentException(String.format("Categoria de codigo [%s] não encontrada", codigo));
     }
 
-    public boolean findByCodigo(String codigo) {
-
-        boolean valida;
-        Optional<CategoriaProduto> categoriaProdutoOptional = this.iCategoriaProdutoRepository.findByCodigoCategoria(codigo);
-
-        if (categoriaProdutoOptional.isPresent()) {
-            valida = true;
-            return valida;
-        }else{
-            valida = false;
-            return valida;
-        }
+    public boolean existByCodigo(String codigo) {
+        return this.iCategoriaProdutoRepository.existsByCodigoCategoria(codigo);
     }
 
     public String gerarCodigo(String codigo, String cnpj){
@@ -194,21 +184,20 @@ public class CategoriaProdutoService {
             String[] vetor = linha[0].replaceAll("\"", "").split(";");
 
             CategoriaProduto categoriaProduto = new CategoriaProduto();
-            boolean valida = findByCodigo(vetor[0]);
 
-            if(valida == false) {
+            if(existByCodigo(vetor[0])) {
 
                 categoriaProduto.setCodigoCategoria(vetor[0]);
                 categoriaProduto.setNome(vetor[1]);
 
                 String cnpjDesformatado = fornecedorService.desformatarCnpj(vetor[3]);
                 FornecedorDTO fornecedorDTO = fornecedorService.findByCnpj(cnpjDesformatado);
-                Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
+                Fornecedor fornecedor = Fornecedor.of(fornecedorDTO);
                 categoriaProduto.setFornecedor(fornecedor);
 
                 categoriaProdutoList.add(categoriaProduto);
 
-            }else if(valida == true){
+            }else {
                 LOGGER.info("Categoria já existente no banco de dados...");
             }
         }
