@@ -41,8 +41,7 @@ public class PeriodoVendasService {
         periodoVendas.setDescricao(periodoVendasDTO.getDescricao());
 
         FornecedorDTO fornecedorDTO = fornecedorService.findById(periodoVendasDTO.getIdFornecedor());
-        Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
-        periodoVendas.setFornecedor(fornecedor);
+        periodoVendas.setFornecedor(Fornecedor.of(fornecedorDTO));
 
         periodoVendas = this.iPeriodoVendasRepository.save(periodoVendas);
         return PeriodoVendasDTO.of(periodoVendas);
@@ -66,8 +65,7 @@ public class PeriodoVendasService {
             periodoVendasExistente.setDescricao(periodoVendasDTO.getDescricao());
 
             FornecedorDTO fornecedorDTO = fornecedorService.findById(periodoVendasDTO.getIdFornecedor());
-            Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
-            periodoVendasExistente.setFornecedor(fornecedor);
+            periodoVendasExistente.setFornecedor(Fornecedor.of(fornecedorDTO));
 
             periodoVendasExistente = this.iPeriodoVendasRepository.save(periodoVendasExistente);
             return PeriodoVendasDTO.of(periodoVendasExistente);
