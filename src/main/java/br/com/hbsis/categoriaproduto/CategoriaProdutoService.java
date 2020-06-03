@@ -183,17 +183,13 @@ public class CategoriaProdutoService {
 
             String[] vetor = linha[0].replaceAll("\"", "").split(";");
 
-            CategoriaProduto categoriaProduto = new CategoriaProduto();
-
             if(existByCodigo(vetor[0])) {
 
-                categoriaProduto.setCodigoCategoria(vetor[0]);
-                categoriaProduto.setNome(vetor[1]);
-
-                String cnpjDesformatado = fornecedorService.desformatarCnpj(vetor[3]);
-                FornecedorDTO fornecedorDTO = fornecedorService.findByCnpj(cnpjDesformatado);
+                String cnpj = fornecedorService.desformatarCnpj(vetor[3]);
+                FornecedorDTO fornecedorDTO = fornecedorService.findByCnpj(cnpj);
                 Fornecedor fornecedor = Fornecedor.of(fornecedorDTO);
-                categoriaProduto.setFornecedor(fornecedor);
+
+                CategoriaProduto categoriaProduto = new CategoriaProduto(vetor[0], fornecedor, vetor[1]);
 
                 categoriaProdutoList.add(categoriaProduto);
 
@@ -205,7 +201,7 @@ public class CategoriaProdutoService {
         return iCategoriaProdutoRepository.saveAll(categoriaProdutoList);
     }
 
-    /** CSV - IMPORTAR POR FORNECEDOR - ATIVIDADE 11 */
+    /** IMPORTAR POR FORNECEDOR */
     public CategoriaProduto executarSaveNaRepository(CategoriaProduto categoriaProduto){
         return this.iCategoriaProdutoRepository.save(categoriaProduto);
     }
