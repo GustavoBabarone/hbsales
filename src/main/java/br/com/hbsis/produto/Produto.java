@@ -38,13 +38,23 @@ public class Produto {
     @Column(name = "validade", unique = false, nullable = false, length = 10)
     private Date validade;
 
-    /** GETTER & SETTER */
-    public Long getId() {
-        return id;
+    public Produto() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Produto(String codigoProduto, String nome, Double preco, LinhaCategoria linhaCategoria,
+                   Long unidadeCaixa, Double pesoUnidade, String unidadeDePeso, Date validade) {
+        this.codigoProduto = codigoProduto;
+        this.nome = nome;
+        this.preco = preco;
+        this.linhaCategoria = linhaCategoria;
+        this.unidadeCaixa = unidadeCaixa;
+        this.pesoUnidade = pesoUnidade;
+        this.unidadeDePeso = unidadeDePeso;
+        this.validade = validade;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getCodigoProduto() {
@@ -115,14 +125,14 @@ public class Produto {
     public String toString() {
         return "Produto{" +
                 "id=" + id +
-                ", codigo='" + codigoProduto + '\'' +
+                ", codigoProduto='" + codigoProduto + '\'' +
                 ", nome='" + nome + '\'' +
                 ", preco=" + preco +
                 ", linhaCategoria=" + linhaCategoria +
                 ", unidadeCaixa=" + unidadeCaixa +
                 ", pesoUnidade=" + pesoUnidade +
                 ", unidadeDePeso='" + unidadeDePeso + '\'' +
-                ", validade='" + validade + '\'' +
+                ", validade=" + validade +
                 '}';
     }
 }

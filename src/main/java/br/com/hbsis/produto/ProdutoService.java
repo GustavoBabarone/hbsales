@@ -39,7 +39,7 @@ public class ProdutoService {
     private final LinhaCategoriaService linhaCategoriaService;
     private final CSV csv;
 
-    @Autowired /** CONSTRUTOR */
+    @Autowired
     public ProdutoService(IProdutoRepository iProdutoRepository, FornecedorService fornecedorService, CategoriaProdutoService categoriaProdutoService, LinhaCategoriaService linhaCategoriaService, CSV csv) {
         this.iProdutoRepository = iProdutoRepository;
         this.fornecedorService = fornecedorService;
@@ -48,29 +48,26 @@ public class ProdutoService {
         this.csv = csv;
     }
 
-    /** MÉTODOS DE CRUD */
     public ProdutoDTO salvar(ProdutoDTO produtoDTO){
 
-        this.validarCamposTexto(produtoDTO);
+        this.validarProduto(produtoDTO);
 
-        LOGGER.info("Salvando produto...");
-        LOGGER.debug("Produto: {}", produtoDTO);
+        LOGGER.info("Executando save de produto");
 
-        Produto produto = new Produto();
-        String codigoProcessado = formatarCodigoProduto(produtoDTO.getCodigoProduto().toUpperCase());
-        produto.setCodigoProduto(codigoProcessado);
-
-        produto.setNome(produtoDTO.getNome());
-        produto.setPreco(produtoDTO.getPreco());
-
+        String codigo = gerarCodigo(produtoDTO.getCodigoProduto());
         LinhaCategoriaDTO linhaCategoriaDTO = linhaCategoriaService.findById(produtoDTO.getIdLinha());
-        LinhaCategoria linhaCategoria = linhaCategoriaService.converterObjeto(linhaCategoriaDTO);
-        produto.setLinhaCategoria(linhaCategoria);
+        LinhaCategoria linhaCategoria = new LinhaCategoria(linhaCategoriaDTO.getId());
 
-        produto.setUnidadeCaixa(produtoDTO.getUnidadeCaixa());
-        produto.setPesoUnidade(produtoDTO.getPesoUnidade());
-        produto.setUnidadeDePeso(produtoDTO.getUnidadeDePeso());
-        produto.setValidade(produtoDTO.getValidade());
+        Produto produto = new Produto(
+                codigo,
+                produtoDTO.getNome(),
+                produtoDTO.getPreco(),
+                linhaCategoria,
+                produtoDTO.getUnidadeCaixa(),
+                produtoDTO.getPesoUnidade(),
+                produtoDTO.getUnidadeDePeso(),
+                produtoDTO.getValidade()
+        );
 
         produto = this.iProdutoRepository.save(produto);
         return ProdutoDTO.of(produto);
@@ -78,7 +75,7 @@ public class ProdutoService {
 
     public ProdutoDTO atualizar(ProdutoDTO produtoDTO, Long id){
 
-        this.validarCamposTexto(produtoDTO);
+        this.validarProduto(produtoDTO);
 
         Optional<Produto> produtoExistenteOptional = this.iProdutoRepository.findById(id);
 
@@ -86,20 +83,16 @@ public class ProdutoService {
 
             Produto produtoExistente = produtoExistenteOptional.get();
 
-            LOGGER.info("Atualizando produto... id: [{}]", produtoExistente.getId());
-            LOGGER.debug("Payload: {}", produtoDTO);
-            LOGGER.debug("Produto existente: {}", produtoExistente);
+            LOGGER.info("Executando update de produto de id: [{}]", produtoExistente.getId());
 
-            String codigoFinal = formatarCodigoProduto(produtoDTO.getCodigoProduto().toUpperCase());
-            produtoExistente.setCodigoProduto(codigoFinal);
+            String codigo = gerarCodigo(produtoDTO.getCodigoProduto());
+            LinhaCategoriaDTO linhaCategoriaDTO = linhaCategoriaService.findById(produtoDTO.getIdLinha());
+            LinhaCategoria linhaCategoria = new LinhaCategoria(linhaCategoriaDTO.getId());
 
+            produtoExistente.setCodigoProduto(codigo);
             produtoExistente.setNome(produtoDTO.getNome());
             produtoExistente.setPreco(produtoDTO.getPreco());
-
-            LinhaCategoriaDTO linhaCategoriaDTO = linhaCategoriaService.findById(produtoDTO.getIdLinha());
-            LinhaCategoria linhaCategoria = linhaCategoriaService.converterObjeto(linhaCategoriaDTO);
             produtoExistente.setLinhaCategoria(linhaCategoria);
-
             produtoExistente.setUnidadeCaixa(produtoDTO.getUnidadeCaixa());
             produtoExistente.setPesoUnidade(produtoDTO.getPesoUnidade());
             produtoExistente.setValidade(produtoDTO.getValidade());
@@ -107,8 +100,8 @@ public class ProdutoService {
             produtoExistente = this.iProdutoRepository.save(produtoExistente);
             return ProdutoDTO.of(produtoExistente);
         }
-        String format = String.format("Id %s não existe", id);
-        throw new IllegalArgumentException(format);
+
+        throw new IllegalArgumentException(String.format("Produto de iId [%s] não encontrado", id));
     }
 
     public void deletar(Long id){
@@ -118,27 +111,26 @@ public class ProdutoService {
         if(iProdutoRepository.existsById(id)){
             this.iProdutoRepository.deleteById(id);
         }else {
-            throw new IllegalArgumentException("Produto não cadastrado");
+            throw new IllegalArgumentException(String.format("Produto de id [%s] não encontrado", id));
         }
     }
 
     public ProdutoDTO findById(Long id){
 
+        LOGGER.info("Executando findById para produto de id: [{}]", id);
+
         Optional<Produto> produtoOptional = this.iProdutoRepository.findById(id);
 
         if(produtoOptional.isPresent()){
-
-            Produto produto = produtoOptional.get();
-            ProdutoDTO produtoDTO = ProdutoDTO.of(produto);
-            return produtoDTO;
+            return ProdutoDTO.of(produtoOptional.get());
         }
-        String format = String.format("Id %s não existe", id);
-        throw new IllegalArgumentException(format);
+
+        throw new IllegalArgumentException(String.format("Produto de id [%s] não encontrado", id));
     }
 
-    public void validarCamposTexto(ProdutoDTO produtoDTO){
+    public void validarProduto(ProdutoDTO produtoDTO){
 
-        LOGGER.info("Validando produto...");
+        LOGGER.info("Validando produto");
 
         if(produtoDTO == null){
             throw new IllegalArgumentException("ProtudoDTO não deve ser nulo");
@@ -195,80 +187,67 @@ public class ProdutoService {
         }
     }
 
-    public ProdutoDTO findByCodigo(String codigoProduto) {
+    public ProdutoDTO findByCodigo(String codigo) {
 
-        Optional<Produto> produtoOptional = this.iProdutoRepository.findByCodigoProduto(codigoProduto);
+        LOGGER.info("Executando findByCodigo para produto de codigo: [{}]", codigo);
 
-        if(produtoOptional.isPresent()){
-
-            Produto produto = produtoOptional.get();
-            ProdutoDTO produtoDTO = ProdutoDTO.of(produto);
-            return produtoDTO;
-        }
-        String format = String.format("Código %s não existe", codigoProduto);
-        throw new IllegalArgumentException(format);
-    }
-
-    public boolean findByCodigoProduto(String codigoProduto) {
-
-        boolean valida;
-        Optional<Produto> produtoOptional = this.iProdutoRepository.findByCodigoProduto(codigoProduto);
+        Optional<Produto> produtoOptional = this.iProdutoRepository.findByCodigoProduto(codigo);
 
         if(produtoOptional.isPresent()){
-            valida = true;
-            return valida;
-        }else {
-            valida = false;
-            return valida;
+            return ProdutoDTO.of(produtoOptional.get());
         }
+
+        throw new IllegalArgumentException(String.format("Produto de codigo [%s] não encontrado", codigo));
     }
 
-    /** FORMATAÇÕES GERAL */
-    public String formatarCodigoProduto(String codigo){
-
-        String codigoFinal = StringUtils.leftPad(codigo, 10, "0");
-        return codigoFinal;
+    public boolean existsByCodigo(String codigoProduto) {
+        return this.iProdutoRepository.existsByCodigoProduto(codigoProduto);
     }
 
-    public String formatarPrecoProduto(Double preco){
+    public String gerarCodigo(String codigo){
 
-        String precoFormatado = "R$"+preco;
-        return precoFormatado;
+        codigo = codigo.toUpperCase();
+        return StringUtils.leftPad(codigo, 10, "0");
     }
 
-    public String formatarPesoProduto(Double peso, String unidadePeso){
-
-        String pesoFormatado = peso+""+unidadePeso;
-        return pesoFormatado;
+    public String adicionarUnidadeMonetariaAoPreco(Double preco){
+        return "R$" + preco;
     }
 
-    public String formatarValidadeProduto(Date validade) {
-
-        String validadeRecebida = String.valueOf(validade);
-        String ano = ""+validadeRecebida.charAt(0)+validadeRecebida.charAt(1)+validadeRecebida.charAt(2)+validadeRecebida.charAt(3);
-        String mes = ""+validadeRecebida.charAt(5)+validadeRecebida.charAt(6);
-        String dia = ""+validadeRecebida.charAt(8)+validadeRecebida.charAt(9);
-        String validadeFormatada = dia+"/"+mes+"/"+ano;
-        return validadeFormatada;
+    public String adicionarUnidadeDeMedidaAoPeso(Double peso, String unidadePeso){
+        return String.format("%s%s", peso, unidadePeso);
     }
 
-    public Date desformatarValidadeProduto(String dataSemBarra) throws ParseException {
-
-        String dia = ""+dataSemBarra.charAt(0)+dataSemBarra.charAt(1);
-        String mes = ""+dataSemBarra.charAt(2)+dataSemBarra.charAt(3);
-        String ano = ""+dataSemBarra.charAt(4)+dataSemBarra.charAt(5)+dataSemBarra.charAt(6)+dataSemBarra.charAt(7);
-        String validadePadrao = ano+"-"+mes+"-"+dia;
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date data = format.parse(validadePadrao);
-        return data;
+    public String substituirHifenPorBarraNaValidade(Date validade) {
+        return String.valueOf(validade).replace("-", "/");
     }
 
-    /** CSV - EXPORTAR E IMPORTAR */
+    public Date transformarValidadeParaPadraoInternacional(String data) {
+
+        data = data.replaceAll("/", "");
+        Date validade = null;
+        try{
+            String dia = data.substring(0, 2);
+            String mes = data.substring(2, 4);
+            String ano = data.substring(4, 8);
+            String validadeConcat = ano.concat("-").concat(mes).concat("-").concat(dia);
+
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            validade = format.parse(validadeConcat);
+
+        }catch (ParseException e){
+            LOGGER.error("ERRO! Padrão de validade inválido (yyyy-MM-dd)");
+        }
+
+        return validade;
+    }
+
     public void exportarProduto(HttpServletResponse response) throws Exception {
 
         String arquivoCSV = "produtos.csv";
-        String[] cabecalhoCSV = {"codigo", "nome", "preco", "unidade_caixa", "peso_unidade", "validade",
-                "codigo_linha", "nome_linha", "codigo_categoria", "nome_categoria", "cnpj_fornecedor", "razao_social_fornecedor"};
+        String[] cabecalhoCSV = {"codigo", "nome", "preco", "unidade_caixa", "peso_unidade",
+                "validade", "codigo_linha", "nome_linha", "codigo_categoria", "nome_categoria",
+                "cnpj_fornecedor", "razao_social_fornecedor"};
         ICSVWriter icsvWriter = csv.padraoExportarCsv(response, arquivoCSV, cabecalhoCSV);
 
         for(Produto rows : iProdutoRepository.findAll()){
@@ -277,10 +256,10 @@ public class ProdutoService {
 
                     rows.getCodigoProduto(),
                     rows.getNome(),
-                    formatarPrecoProduto(rows.getPreco()),
+                    adicionarUnidadeMonetariaAoPreco(rows.getPreco()),
                     rows.getUnidadeCaixa().toString(),
-                    formatarPesoProduto(rows.getPesoUnidade(), rows.getUnidadeDePeso()),
-                    formatarValidadeProduto(rows.getValidade()),
+                    adicionarUnidadeDeMedidaAoPeso(rows.getPesoUnidade(), rows.getUnidadeDePeso()),
+                    substituirHifenPorBarraNaValidade(rows.getValidade()),
                     rows.getLinhaCategoria().getCodigoLinha(),
                     rows.getLinhaCategoria().getNome(),
                     rows.getLinhaCategoria().getCategoriaProduto().getCodigoCategoria(),
@@ -289,7 +268,7 @@ public class ProdutoService {
                     rows.getLinhaCategoria().getCategoriaProduto().getFornecedor().getRazaoSocial()
             });
         }
-        LOGGER.info("Finalizando exportação de produto...");
+        LOGGER.info("Finalizando exportação de produto");
     }
 
     public List<Produto> importarProduto(MultipartFile file) throws Exception {
@@ -301,30 +280,25 @@ public class ProdutoService {
 
             String[] vetor = linha[0].replaceAll("\"", "").split(";");
 
-            Produto produto = new Produto();
-            boolean valida = findByCodigoProduto(vetor[0]);
-
-            if(valida == false){
-
-                produto.setCodigoProduto(vetor[0]);
-                produto.setNome(vetor[1]);
-                produto.setPreco(Double.parseDouble(vetor[2].replace("R", "").replace("$", "").replaceAll(",", ".")));
+            if(existsByCodigo(vetor[0])){
 
                 LinhaCategoriaDTO linhaCategoriaDTO = linhaCategoriaService.findByCodigoLinha(vetor[6]);
-                LinhaCategoria linhaCategoria = linhaCategoriaService.converterObjeto(linhaCategoriaDTO);
-                produto.setLinhaCategoria(linhaCategoria);
+                LinhaCategoria linhaCategoria = new LinhaCategoria(linhaCategoriaDTO.getId());
 
-                produto.setUnidadeCaixa(Long.parseLong(vetor[3]));
-                produto.setPesoUnidade(Double.parseDouble(vetor[4].replace("m", "").replace("g", "").replace("k", "").replace("K", "").replaceAll(",", "")));
-
-                String dataSemBarra = vetor[5].replaceAll("/", "");
-                produto.setValidade(desformatarValidadeProduto(dataSemBarra));
-
-                produto.setUnidadeDePeso(vetor[4].replaceAll("\\d", "").replace(".", ""));
+                Produto produto = new Produto(
+                        vetor[0],
+                        vetor[1],
+                        Double.parseDouble(vetor[2].replace("R", "").replace("$", "").replaceAll(",", ".")),
+                        linhaCategoria,
+                        Long.parseLong(vetor[3]),
+                        Double.parseDouble(vetor[4].replace("m", "").replace("g", "").replace("k", "").replace("K", "").replaceAll(",", "")),
+                        vetor[4].replaceAll("\\d", "").replace(".", ""),
+                        transformarValidadeParaPadraoInternacional(vetor[5])
+                );
 
                 produtoList.add(produto);
 
-            }else if(valida == true) {
+            }else {
                 LOGGER.info("Produto já existente no banco de dados...");
             }
         }
@@ -356,65 +330,60 @@ public class ProdutoService {
             String codigoCategoria = vetor[8].toUpperCase();
             String nomeCategoria = vetor[9];
             String cnpjFornecedor = fornecedorService.desformatarCnpj(vetor[10]);
-            // String razaoSocialFornecedor = vetor[11]; -> Não utilizada
-
-            boolean validaProduto = findByCodigoProduto(codigoProduto);
-            boolean validaLinha  = linhaCategoriaService.findByCodigo(codigoLinha);
-            boolean validaCategoria = categoriaProdutoService.findByCodigo(codigoCategoria);
-            boolean validaFornecedor = fornecedorService.findByIdFornecedor(idFornecedor);
+            /* String razaoSocialFornecedor = vetor[11]; -> Não utilizada */
 
             /** FORNECEDOR EXISTE? -> COMPARA 'ID' COM OS 'IDS' CADASTRADO POR PRODUTO */
-            if(validaFornecedor == true){
+            if(fornecedorService.existsById(idFornecedor)){
 
                 if(idFornecedor == fornecedorService.findByCnpj(cnpjFornecedor).getId()) {
 
-                /** TEM FORNECEDOR CADASTRADO? -> VALIDA O RESTO... */
+                /** TEM FORNECEDOR CADASTRADO? -> CONTINUA... */
 
-                    if(validaCategoria == true){
+                    if(categoriaProdutoService.existByCodigo(codigoCategoria)){
 
-                        /** TEM CATEGORIA CADASTRADA? -> ATUALIZA CATEGORIA */
+                        /** TEM CATEGORIA CADASTRADA? -> ATUALIZA */
                         atualizarCategoriaNoImportarPorFornecedor(codigoCategoria, nomeCategoria, cnpjFornecedor);
 
-                        if(validaLinha == true){
+                        if(linhaCategoriaService.existsByCodigo(codigoLinha)){
 
-                            /** TEM LINHA CADASTRADA? -> ATUALIZA LINHA */
+                            /** TEM LINHA CADASTRADA? -> ATUALIZA */
                             atualizarLinhaNoImportarPorFornecedor(codigoLinha, codigoCategoria, nomeLinha);
 
-                            if(validaProduto == true){
+                            if(existsByCodigo(codigoProduto)){
 
-                                /** TEM PRODUTO CADASTRADO? -> ATUALIZA PRODUTO */
+                                /** TEM PRODUTO CADASTRADO? -> ATUALIZA */
                                 atualizarProdutoNoImportarPorFornecedor(codigoProduto, nomeProduto, precoProduto, unidadePorCaixa, pesoPorUnidade, unidadeMedida, validadeProduto, codigoLinha);
 
-                            }else if(validaProduto == false){
+                            }else {
 
-                                /** NÃO TEM PRODUTO CADASTRADO? -> CADASTRA PRODUTO */
+                                /** NÃO TEM PRODUTO CADASTRADO? -> CADASTRA */
                                 salvarProdutoNoImportarPorFornecedor(codigoProduto, nomeProduto, precoProduto, unidadePorCaixa, pesoPorUnidade, unidadeMedida, validadeProduto, codigoLinha);
                             }
 
-                        }else if(validaLinha == false){
+                        }else {
 
-                            /** NÃO TEM LINHA CADASTRADA? -> CADASTRA LINHA */
+                            /** NÃO TEM LINHA CADASTRADA? -> CADASTRA */
                             salvarLinhaNoImportarPorFornecedor(codigoLinha, codigoCategoria, nomeLinha);
                         }
 
-                    }else if(validaCategoria == false){
+                    }else {
 
-                        /** NÃO TEM CATEGORIA CADASTRADA? -> CADASTRA CATEGORIA */
+                        /** NÃO TEM CATEGORIA CADASTRADA? -> CADASTRA */
                         salvarCategoriaNoImportarPorFornecedor(codigoCategoria, nomeCategoria, cnpjFornecedor);
                     }
                 }
 
-            }else if(validaFornecedor == false){
+            }else {
 
-                /** NÃO TEM FORNECEDOR CADASTRADO? -> NÃO FAZ NADA */
-                throw new IllegalArgumentException(String.format("Fornecedor não cadastrado! id: ", idFornecedor));
+                /** NÃO TEM FORNECEDOR CADASTRADO? -> ERRO */
+                throw new IllegalArgumentException(String.format("Fornecedor de id [%s] não encontrado", idFornecedor));
             }
+        }
 
-        }/** FIM DO FOR/LAÇO */
-            LOGGER.info("Finalizando importação CSV por fornecedor...");
+        LOGGER.info("Finalizando importação de CSV por fornecedor");
     }
 
-    /** PRODUTO - ATIVIDADE 11 */
+    /** PRODUTO */
     public ProdutoDTO salvarProdutoNoImportarPorFornecedor(String codigoProduto, String nome, String preco,
     String unidadeCaixa, String pesoPorUnidade, String unidadeMedida, String validade, String codigoLinha) throws ParseException {
 
@@ -422,18 +391,18 @@ public class ProdutoService {
         LOGGER.info("Cadastrando novo produto...");
 
         Produto produto = new Produto();
-        String codigoFinal = formatarCodigoProduto(codigoProduto);
+        String codigoFinal = gerarCodigo(codigoProduto);
         produto.setCodigoProduto(codigoFinal);
         produto.setNome(nome);
         produto.setPreco(Double.parseDouble(preco));
 
         LinhaCategoriaDTO linhaCategoriaDTO = linhaCategoriaService.findByCodigoLinha(codigoLinha);
-        LinhaCategoria linhaCategoria = linhaCategoriaService.converterObjeto(linhaCategoriaDTO);
+        LinhaCategoria linhaCategoria = new LinhaCategoria(linhaCategoriaDTO.getId());
         produto.setLinhaCategoria(linhaCategoria);
 
         produto.setUnidadeCaixa(Long.parseLong(unidadeCaixa));
         produto.setPesoUnidade(Double.parseDouble(pesoPorUnidade));
-        produto.setValidade(desformatarValidadeProduto(validade));
+        produto.setValidade(transformarValidadeParaPadraoInternacional(validade));
         produto.setUnidadeDePeso(unidadeMedida);
 
         produto = this.iProdutoRepository.save(produto);
@@ -448,27 +417,26 @@ public class ProdutoService {
         Produto produtoExistente = produtoExistenteOptional.get();
 
         LOGGER.info("Atualizando produto... id: [{}]", produtoExistente.getId());
-        LOGGER.debug("Produto existente: {}", produtoExistente);
 
-        String codigoFinal = formatarCodigoProduto(codigoProduto);
+        String codigoFinal = gerarCodigo(codigoProduto);
         produtoExistente.setCodigoProduto(codigoFinal);
         produtoExistente.setNome(nome);
         produtoExistente.setPreco(Double.parseDouble(preco));
 
         LinhaCategoriaDTO linhaCategoriaDTO = linhaCategoriaService.findByCodigoLinha(codigoLinha);
-        LinhaCategoria linhaCategoria = linhaCategoriaService.converterObjeto(linhaCategoriaDTO);
+        LinhaCategoria linhaCategoria = new LinhaCategoria(linhaCategoriaDTO.getId());
         produtoExistente.setLinhaCategoria(linhaCategoria);
 
         produtoExistente.setUnidadeCaixa(Long.parseLong(unidadeCaixa));
         produtoExistente.setPesoUnidade(Double.parseDouble(pesoPorUnidade));
-        produtoExistente.setValidade(desformatarValidadeProduto(validade));
+        produtoExistente.setValidade(transformarValidadeParaPadraoInternacional(validade));
         produtoExistente.setUnidadeDePeso(unidadeMedida);
 
         produtoExistente = this.iProdutoRepository.save(produtoExistente);
         return ProdutoDTO.of(produtoExistente);
     }
 
-    /** LINHA - ATIVIDADE 11 */
+    /** LINHA */
     public LinhaCategoriaDTO salvarLinhaNoImportarPorFornecedor(String codigoLinha, String codigoCategoria, String nome){
 
         LOGGER.info("Linha de categoria não cadastrada... código linha: [{}]", codigoLinha);
@@ -477,7 +445,7 @@ public class ProdutoService {
         LinhaCategoria linhaCategoria = new LinhaCategoria();
         linhaCategoria.setNome(nome);
 
-        String codigoFinal = linhaCategoriaService.formatarCodigoLinha(codigoLinha);
+        String codigoFinal = linhaCategoriaService.gerarCodigo(codigoLinha);
         linhaCategoria.setCodigoLinha(codigoFinal);
 
         CategoriaProdutoDTO categoriaProdutoDTO = categoriaProdutoService.findByCodigoCategoria(codigoCategoria);
@@ -493,9 +461,8 @@ public class ProdutoService {
         LinhaCategoria linhaCategoria = linhaCategoriaOptionalExistente.get();
 
         LOGGER.info("Atualizando Linha de Categoria... id: [{}]", linhaCategoria.getId());
-        LOGGER.debug("Linha de categoria existente: {}", linhaCategoriaOptionalExistente);
 
-        String codigoFinal = linhaCategoriaService.formatarCodigoLinha(codigoLinha.toUpperCase());
+        String codigoFinal = linhaCategoriaService.gerarCodigo(codigoLinha.toUpperCase());
         linhaCategoria.setCodigoLinha(codigoFinal);
 
         CategoriaProdutoDTO categoriaProdutoDTO = categoriaProdutoService.findByCodigoCategoria(codigoCategoria);
@@ -507,7 +474,7 @@ public class ProdutoService {
         return LinhaCategoriaDTO.of(linhaCategoria);
     }
 
-    /** CATEGORIA - ATIVIDADE 11 */
+    /** CATEGORIA */
     public CategoriaProdutoDTO salvarCategoriaNoImportarPorFornecedor(String codigoCategoria, String nomeCategoria, String cnpjForneceodor){
 
         LOGGER.info("Categoria de produto não cadastrada... código de categoria: [{}]", codigoCategoria);
@@ -518,8 +485,7 @@ public class ProdutoService {
         categoriaProduto.setNome(nomeCategoria);
 
         FornecedorDTO fornecedorDTO = fornecedorService.findByCnpj(cnpjForneceodor);
-        Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
-        categoriaProduto.setFornecedor(fornecedor);
+        categoriaProduto.setFornecedor(Fornecedor.of(fornecedorDTO));
 
         categoriaProduto = this.categoriaProdutoService.executarSaveNaRepository(categoriaProduto);
         return CategoriaProdutoDTO.of(categoriaProduto);
@@ -531,7 +497,6 @@ public class ProdutoService {
         CategoriaProduto categoriaProdutoExistente = categoriaProdutoOptionalexistente.get();
 
         LOGGER.info("Atualizando Categoria de Produto... id: [{}]", categoriaProdutoExistente.getId());
-        LOGGER.debug("Linha de categoria existente: {}", categoriaProdutoOptionalexistente);
 
         String codigo = codigoCategoria.substring(codigoCategoria.length() - 3);
         String codigoFinal = categoriaProdutoService.gerarCodigo(codigo.toUpperCase(), cnpjForneceodor);
@@ -540,8 +505,7 @@ public class ProdutoService {
         categoriaProdutoExistente.setNome(nomeCategoria);
 
         FornecedorDTO fornecedorDTO = fornecedorService.findByCnpj(cnpjForneceodor);
-        Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
-        categoriaProdutoExistente.setFornecedor(fornecedor);
+        categoriaProdutoExistente.setFornecedor(Fornecedor.of(fornecedorDTO));
 
         categoriaProdutoExistente = this.categoriaProdutoService.executarSaveNaRepository(categoriaProdutoExistente);
         return CategoriaProdutoDTO.of(categoriaProdutoExistente);

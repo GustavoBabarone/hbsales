@@ -4,7 +4,6 @@ import java.util.Date;
 
 public class ProdutoDTO {
 
-    /** ATRIBUTOS */
     private Long id;
     private String codigoProduto;
     private String nome;
@@ -15,7 +14,6 @@ public class ProdutoDTO {
     private String unidadeDePeso;
     private Date validade;
 
-    /** CONSTRUTORES */
     public ProdutoDTO() {
     }
 
@@ -35,7 +33,6 @@ public class ProdutoDTO {
 
     public static ProdutoDTO of(Produto produto){
         return new ProdutoDTO(
-
                 produto.getId(),
                 produto.getCodigoProduto(),
                 produto.getNome(),
@@ -48,13 +45,8 @@ public class ProdutoDTO {
         );
     }
 
-    /** GETTER & SETTER */
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getCodigoProduto() {
@@ -105,14 +97,6 @@ public class ProdutoDTO {
         this.pesoUnidade = pesoUnidade;
     }
 
-    public Date getValidade() {
-        return validade;
-    }
-
-    public void setValidade(Date validade) {
-        this.validade = validade;
-    }
-
     public String getUnidadeDePeso() {
         return unidadeDePeso;
     }
@@ -121,18 +105,26 @@ public class ProdutoDTO {
         this.unidadeDePeso = unidadeDePeso;
     }
 
+    public Date getValidade() {
+        return validade;
+    }
+
+    public void setValidade(Date validade) {
+        this.validade = validade;
+    }
+
     @Override
     public String toString() {
         return "ProdutoDTO{" +
                 "id=" + id +
-                ", codigo='" + codigoProduto + '\'' +
+                ", codigoProduto='" + codigoProduto + '\'' +
                 ", nome='" + nome + '\'' +
                 ", preco=" + preco +
                 ", idLinha=" + idLinha +
                 ", unidadeCaixa=" + unidadeCaixa +
                 ", pesoUnidade=" + pesoUnidade +
                 ", unidadeDePeso='" + unidadeDePeso + '\'' +
-                ", validade='" + validade + '\'' +
+                ", validade=" + validade +
                 '}';
     }
 }
