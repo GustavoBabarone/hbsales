@@ -9,13 +9,10 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,8 +45,7 @@ public class LinhaCategoriaService {
         linhaCategoria.setCodigoLinha(codigo);
 
         CategoriaProdutoDTO categoriaProdutoDTO = categoriaProdutoService.findById(linhaCategoriaDTO.getIdCategoria());
-        CategoriaProduto categoriaProduto = categoriaProdutoService.converterObjeto(categoriaProdutoDTO);
-        linhaCategoria.setCategoriaProduto(categoriaProduto);
+        linhaCategoria.setCategoriaProduto(new CategoriaProduto(categoriaProdutoDTO.getId()));
 
         linhaCategoria.setNome(linhaCategoriaDTO.getNome());
 
@@ -75,8 +71,7 @@ public class LinhaCategoriaService {
             linhaCategoriaExistente.setCodigoLinha(codigoFinal);
 
             CategoriaProdutoDTO categoriaProdutoDTO = categoriaProdutoService.findById(linhaCategoriaDTO.getIdCategoria());
-            CategoriaProduto categoriaProduto = categoriaProdutoService.converterObjeto(categoriaProdutoDTO);
-            linhaCategoriaExistente.setCategoriaProduto(categoriaProduto);
+            linhaCategoriaExistente.setCategoriaProduto(new CategoriaProduto(categoriaProdutoDTO.getId()));
 
             linhaCategoriaExistente.setNome(linhaCategoriaDTO.getNome());
 
@@ -214,8 +209,7 @@ public class LinhaCategoriaService {
                 linhaCategoria.setNome(vetor[1]);
 
                 CategoriaProdutoDTO categoriaProdutoDTO = this.categoriaProdutoService.findByCodigoCategoria(vetor[2]);
-                CategoriaProduto categoriaProduto = categoriaProdutoService.converterObjeto(categoriaProdutoDTO);
-                linhaCategoria.setCategoriaProduto(categoriaProduto);
+                linhaCategoria.setCategoriaProduto(new CategoriaProduto(categoriaProdutoDTO.getId()));
 
                 linhaCategoriaList.add(linhaCategoria);
 

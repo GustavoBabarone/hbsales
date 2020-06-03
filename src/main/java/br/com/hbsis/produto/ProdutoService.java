@@ -481,8 +481,7 @@ public class ProdutoService {
         linhaCategoria.setCodigoLinha(codigoFinal);
 
         CategoriaProdutoDTO categoriaProdutoDTO = categoriaProdutoService.findByCodigoCategoria(codigoCategoria);
-        CategoriaProduto categoriaProduto = categoriaProdutoService.converterObjeto(categoriaProdutoDTO);
-        linhaCategoria.setCategoriaProduto(categoriaProduto);
+        linhaCategoria.setCategoriaProduto(new CategoriaProduto(categoriaProdutoDTO.getId()));
 
         linhaCategoria = this.linhaCategoriaService.executarSaveNaRepository(linhaCategoria);
         return LinhaCategoriaDTO.of(linhaCategoria);
@@ -500,8 +499,7 @@ public class ProdutoService {
         linhaCategoria.setCodigoLinha(codigoFinal);
 
         CategoriaProdutoDTO categoriaProdutoDTO = categoriaProdutoService.findByCodigoCategoria(codigoCategoria);
-        CategoriaProduto categoriaProduto = categoriaProdutoService.converterObjeto(categoriaProdutoDTO);
-        linhaCategoria.setCategoriaProduto(categoriaProduto);
+        linhaCategoria.setCategoriaProduto(new CategoriaProduto(categoriaProdutoDTO.getId()));
 
         linhaCategoria.setNome(nome);
 
@@ -536,7 +534,7 @@ public class ProdutoService {
         LOGGER.debug("Linha de categoria existente: {}", categoriaProdutoOptionalexistente);
 
         String codigo = codigoCategoria.substring(codigoCategoria.length() - 3);
-        String codigoFinal = categoriaProdutoService.formatarCodigoCategoria(codigo.toUpperCase(), cnpjForneceodor);
+        String codigoFinal = categoriaProdutoService.gerarCodigo(codigo.toUpperCase(), cnpjForneceodor);
         categoriaProdutoExistente.setCodigoCategoria(codigoFinal);
 
         categoriaProdutoExistente.setNome(nomeCategoria);

@@ -2,13 +2,11 @@ package br.com.hbsis.categoriaproduto;
 
 public class CategoriaProdutoDTO {
 
-    /** ATRIBUTOS */
     private Long id;
     private String codigoCategoria;
     private Long idFornecedor;
     private String nome;
 
-    /** CONSTRUTORES */
     public CategoriaProdutoDTO() {
     }
 
@@ -21,7 +19,6 @@ public class CategoriaProdutoDTO {
 
     public static CategoriaProdutoDTO of(CategoriaProduto categoriaProduto){
         return new CategoriaProdutoDTO(
-
                 categoriaProduto.getId(),
                 categoriaProduto.getCodigoCategoria(),
                 categoriaProduto.getFornecedor().getId(),
@@ -29,13 +26,8 @@ public class CategoriaProdutoDTO {
         );
     }
 
-    /** GETTER & SETTER */
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getCodigoCategoria() {
@@ -66,7 +58,7 @@ public class CategoriaProdutoDTO {
     public String toString() {
         return "CategoriaProdutoDTO{" +
                 "id=" + id +
-                ", codigo=" + codigoCategoria +
+                ", codigoCategoria='" + codigoCategoria + '\'' +
                 ", idFornecedor=" + idFornecedor +
                 ", nome='" + nome + '\'' +
                 '}';

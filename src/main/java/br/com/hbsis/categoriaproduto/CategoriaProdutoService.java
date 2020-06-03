@@ -25,31 +25,27 @@ public class CategoriaProdutoService {
     private final FornecedorService fornecedorService;
     private final CSV csv;
 
-    @Autowired /** CONSTRUTOR */
+    @Autowired
     public CategoriaProdutoService(ICategoriaProdutoRepository iCategoriaProdutoRepository, FornecedorService fornecedorService, CSV csv) {
         this.iCategoriaProdutoRepository = iCategoriaProdutoRepository;
         this.fornecedorService = fornecedorService;
         this.csv = csv;
     }
 
-    /** MÉTODOS DE CRUD */
     public CategoriaProdutoDTO salvar(CategoriaProdutoDTO categoriaProdutoDTO) {
 
-        this.validarCamposTexto(categoriaProdutoDTO);
+        this.validarCategoria(categoriaProdutoDTO);
 
-        LOGGER.info("Salvando categoria");
-        LOGGER.debug("Categoria: {}", categoriaProdutoDTO);
-
-        CategoriaProduto categoriaProduto = new CategoriaProduto();
+        LOGGER.info("Executando save de categoria");
 
         FornecedorDTO fornecedorDTO = fornecedorService.findById(categoriaProdutoDTO.getIdFornecedor());
-        Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
-        categoriaProduto.setFornecedor(fornecedor);
+        String codigo = gerarCodigo(categoriaProdutoDTO.getCodigoCategoria(), fornecedorDTO.getCnpj());
 
-        String codigoFinal = formatarCodigoCategoria(categoriaProdutoDTO.getCodigoCategoria().toUpperCase(), fornecedorDTO.getCnpj());
-        categoriaProduto.setCodigoCategoria(codigoFinal);
-
-        categoriaProduto.setNome(categoriaProdutoDTO.getNome());
+        CategoriaProduto categoriaProduto = new CategoriaProduto(
+                codigo,
+                Fornecedor.of(fornecedorDTO),
+                categoriaProdutoDTO.getNome()
+        );
 
         categoriaProduto = this.iCategoriaProdutoRepository.save(categoriaProduto);
         return CategoriaProdutoDTO.of(categoriaProduto);
@@ -57,7 +53,7 @@ public class CategoriaProdutoService {
 
     public CategoriaProdutoDTO atualizar(CategoriaProdutoDTO categoriaProdutoDTO, Long id) {
 
-        this.validarCamposTexto(categoriaProdutoDTO);
+        this.validarCategoria(categoriaProdutoDTO);
 
         Optional<CategoriaProduto> categoriaProdutoExistenteOptional = this.iCategoriaProdutoRepository.findById(id);
 
@@ -65,23 +61,21 @@ public class CategoriaProdutoService {
 
             CategoriaProduto categoriaProdutoExistente = categoriaProdutoExistenteOptional.get();
 
-            LOGGER.info("Atualizando categoria... id: [{}]", categoriaProdutoExistente.getId());
-            LOGGER.debug("Payload: {}", categoriaProdutoDTO);
-            LOGGER.debug("Categoria Existente: {}", categoriaProdutoExistente);
+            LOGGER.info("Executando update de categoria de id: [{}]", categoriaProdutoExistente.getId());
 
             FornecedorDTO fornecedorDTO = fornecedorService.findById(categoriaProdutoDTO.getIdFornecedor());
-            Fornecedor fornecedor = fornecedorService.converterObjeto(fornecedorDTO);
-            categoriaProdutoExistente.setFornecedor(fornecedor);
-
-            String codigoFinal = formatarCodigoCategoria(categoriaProdutoDTO.getCodigoCategoria().toUpperCase(), fornecedorDTO.getCnpj());
-            categoriaProdutoExistente.setCodigoCategoria(codigoFinal);
 
             categoriaProdutoExistente.setNome(categoriaProdutoDTO.getNome());
+            categoriaProdutoExistente.setFornecedor(Fornecedor.of(fornecedorDTO));
+            categoriaProdutoExistente.setCodigoCategoria(
+                    gerarCodigo(categoriaProdutoDTO.getCodigoCategoria(), fornecedorDTO.getCnpj())
+            );
 
             categoriaProdutoExistente = this.iCategoriaProdutoRepository.save(categoriaProdutoExistente);
             return CategoriaProdutoDTO.of(categoriaProdutoExistente);
         }
-        throw new IllegalArgumentException(String.format("Id %s não existe", id));
+
+        throw new IllegalArgumentException(String.format("Categoria de id [%s] não encontrada", id));
     }
 
     public void deletar(Long id) {
@@ -91,28 +85,26 @@ public class CategoriaProdutoService {
         if(iCategoriaProdutoRepository.existsById(id)){
             this.iCategoriaProdutoRepository.deleteById(id);
         }else {
-            throw new IllegalArgumentException("Categoria não cadastrada");
+            throw new IllegalArgumentException(String.format("Categoria de id [%s] não encontrada", id));
         }
-
     }
 
     public CategoriaProdutoDTO findById(Long id) {
 
+        LOGGER.info("Executando findById para categoria de id: [{}]", id);
+
         Optional<CategoriaProduto> categoriaProdutoOptional = this.iCategoriaProdutoRepository.findById(id);
 
         if (categoriaProdutoOptional.isPresent()) {
-
-            CategoriaProduto categoriaProduto = categoriaProdutoOptional.get();
-            CategoriaProdutoDTO categoriaProdutoDTO = CategoriaProdutoDTO.of(categoriaProduto);
-            return categoriaProdutoDTO;
+            return CategoriaProdutoDTO.of(categoriaProdutoOptional.get());
         }
-        String format = String.format("Id %s não existe", id);
-        throw new IllegalArgumentException(format);
+
+        throw new IllegalArgumentException(String.format("Categoria de id [%s] não encontrada", id));
     }
 
-    private void validarCamposTexto(CategoriaProdutoDTO categoriaProdutoDTO) {
+    private void validarCategoria(CategoriaProdutoDTO categoriaProdutoDTO) {
 
-        LOGGER.info("Validando categoria...");
+        LOGGER.info("Validando categoria");
 
         if(categoriaProdutoDTO == null){
             throw new IllegalArgumentException("CategoriaProdutoDTO não deve ser nulo");
@@ -141,16 +133,15 @@ public class CategoriaProdutoService {
 
     public CategoriaProdutoDTO findByCodigoCategoria(String codigo) {
 
+        LOGGER.info("Executando findByCodigo para categoria de codigo: [{}]", codigo);
+
         Optional<CategoriaProduto> categoriaProdutoOptional = this.iCategoriaProdutoRepository.findByCodigoCategoria(codigo);
 
         if (categoriaProdutoOptional.isPresent()) {
-
-            CategoriaProduto categoriaProduto = categoriaProdutoOptional.get();
-            CategoriaProdutoDTO categoriaProdutoDTO = CategoriaProdutoDTO.of(categoriaProduto);
-            return categoriaProdutoDTO;
+            return CategoriaProdutoDTO.of(categoriaProdutoOptional.get());
         }
-        String format = String.format("Código %s não existe", codigo);
-        throw new IllegalArgumentException(format);
+
+        throw new IllegalArgumentException(String.format("Categoria de codigo [%s] não encontrada", codigo));
     }
 
     public boolean findByCodigo(String codigo) {
@@ -167,23 +158,14 @@ public class CategoriaProdutoService {
         }
     }
 
-    /** FORMATAÇÕES GERAL */
-    public String formatarCodigoCategoria(String codigoInformado, String cnpjFornecedor){
+    public String gerarCodigo(String codigo, String cnpj){
 
-        String codigoZerosEsquerda = StringUtils.leftPad(codigoInformado, 3, "0");
-        String ultimosDigitosCnpj = cnpjFornecedor.substring(cnpjFornecedor.length() - 4);
-        String codigoFinal = "CAT"+ultimosDigitosCnpj+codigoZerosEsquerda;
-        return codigoFinal;
+        codigo = codigo.toUpperCase();
+        String zerosEsquerda = StringUtils.leftPad(codigo, 3, "0");
+        String digitosCnpj = cnpj.substring(cnpj.length() - 4);
+        return "CAT" + digitosCnpj + zerosEsquerda;
     }
 
-    public CategoriaProduto converterObjeto(CategoriaProdutoDTO categoriaProdutoDTO){
-
-        CategoriaProduto categoriaProduto = new CategoriaProduto();
-        categoriaProduto.setId(categoriaProdutoDTO.getId());
-        return categoriaProduto;
-    }
-
-    /** CSV - EXPORTAR E IMPORTAR */
     public void exportarCategoria(HttpServletResponse response) throws Exception {
 
         String arquivoCSV = "categoriaProduto.csv";

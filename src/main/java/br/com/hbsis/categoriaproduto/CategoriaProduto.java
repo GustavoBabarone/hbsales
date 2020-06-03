@@ -15,7 +15,6 @@ public class CategoriaProduto {
     @Column(name = "codigo", unique = true, nullable = false, length = 14)
     private String codigoCategoria;
 
-    /** MUITAS CATEGORIAS PARA UM ÚNICO FORNECEDOR */
     @ManyToOne
     @JoinColumn(name = "id_fornecedor", referencedColumnName = "id", nullable = false)
     private Fornecedor fornecedor;
@@ -23,13 +22,21 @@ public class CategoriaProduto {
     @Column(name = "nome", nullable = false, length = 50)
     private String nome;
 
-    /** GETTER & SETTER */
-    public Long getId() {
-        return id;
+    public CategoriaProduto() {
     }
 
-    public void setId(Long id) {
+    public CategoriaProduto(Long id) {
         this.id = id;
+    }
+
+    public CategoriaProduto(String codigoCategoria, Fornecedor fornecedor, String nome) {
+        this.codigoCategoria = codigoCategoria;
+        this.fornecedor = fornecedor;
+        this.nome = nome;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getCodigoCategoria() {
@@ -40,20 +47,20 @@ public class CategoriaProduto {
         this.codigoCategoria = codigoCategoria;
     }
 
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
     public Fornecedor getFornecedor() {
         return fornecedor;
     }
 
     public void setFornecedor(Fornecedor fornecedor) {
         this.fornecedor = fornecedor;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     @Override
