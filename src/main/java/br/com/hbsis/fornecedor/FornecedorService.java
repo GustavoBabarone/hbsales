@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.MaskFormatter;
+import java.text.ParseException;
 import java.util.Optional;
 
 @Service
@@ -14,26 +16,25 @@ public class FornecedorService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FornecedorService.class);
     private final IFornecedorRepository iFornecedorRepository;
 
-    @Autowired /** CONSTRUTOR */
+    @Autowired
     public FornecedorService(IFornecedorRepository iFornecedorRepository) {
         this.iFornecedorRepository = iFornecedorRepository;
     }
 
-    /** MÉTODOS DE CRUD */
     public FornecedorDTO salvar(FornecedorDTO fornecedorDTO){
 
-        this.validarCamposTexto(fornecedorDTO);
+        this.validarFornecedor(fornecedorDTO);
 
-        LOGGER.info("Salvando fornecedor");
-        LOGGER.debug("Fornecedor: {}", fornecedorDTO);
+        LOGGER.info("Executando save de fornecedor");
 
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setRazaoSocial(fornecedorDTO.getRazaoSocial());
-        fornecedor.setCnpj(fornecedorDTO.getCnpj());
-        fornecedor.setNomeFantasia(fornecedorDTO.getNomeFantasia());
-        fornecedor.setEndereco(fornecedorDTO.getEndereco());
-        fornecedor.setTelefoneContato(fornecedorDTO.getTelefoneContato());
-        fornecedor.setEmailContato(fornecedorDTO.getEmailContato());
+        Fornecedor fornecedor = new Fornecedor(
+                fornecedorDTO.getRazaoSocial(),
+                fornecedorDTO.getCnpj(),
+                fornecedorDTO.getNomeFantasia(),
+                fornecedorDTO.getEndereco(),
+                fornecedorDTO.getTelefoneContato(),
+                fornecedorDTO.getEmailContato()
+        );
 
         fornecedor = this.iFornecedorRepository.save(fornecedor);
         return FornecedorDTO.of(fornecedor);
@@ -41,7 +42,7 @@ public class FornecedorService {
 
     public FornecedorDTO atualizar(FornecedorDTO fornecedorDTO, Long id) {
 
-        this.validarCamposTexto(fornecedorDTO);
+        this.validarFornecedor(fornecedorDTO);
 
         Optional<Fornecedor> fornecedorExistenteOptional = this.iFornecedorRepository.findById(id);
 
@@ -49,9 +50,7 @@ public class FornecedorService {
 
             Fornecedor fornecedorExistente = fornecedorExistenteOptional.get();
 
-            LOGGER.info("Atualizando br.com.hbsis.Fornecedor... nome: [{}]", Fornecedor.class.getName());
-            LOGGER.debug("Payaload: {}", fornecedorDTO);
-            LOGGER.debug("Fornecedor Existente: {}", fornecedorExistente);
+            LOGGER.info("Executando update de fornecedor de id: [{}]", id);
 
             fornecedorExistente.setRazaoSocial(fornecedorDTO.getRazaoSocial());
             fornecedorExistente.setCnpj(fornecedorDTO.getCnpj());
@@ -63,7 +62,8 @@ public class FornecedorService {
             fornecedorExistente = this.iFornecedorRepository.save(fornecedorExistente);
             return FornecedorDTO.of(fornecedorExistente);
         }
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+
+        throw new IllegalArgumentException(String.format("Fornecedor de id [%s] não encontrado", id));
     }
 
     public void deletar(Long id){
@@ -73,25 +73,37 @@ public class FornecedorService {
         if(iFornecedorRepository.existsById(id)) {
             this.iFornecedorRepository.deleteById(id);
         }else {
-            throw new IllegalArgumentException("Fornecedor não cadastrado");
+            throw new IllegalArgumentException(String.format("Fornecedor de id [%s] não encontrado", id));
         }
     }
 
     public FornecedorDTO findById(Long id){
 
+        LOGGER.info("Executando findById para fornecedor de id: [{}]", id);
+
         Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findById(id);
 
         if(fornecedorOptional.isPresent()){
-
-            Fornecedor fornecedor = fornecedorOptional.get();
-            FornecedorDTO fornecedorDTO = FornecedorDTO.of(fornecedor);
-            return fornecedorDTO;
+            return FornecedorDTO.of(fornecedorOptional.get());
         }
-        String format = String.format("ID %s não existe", id);
-        throw new IllegalArgumentException(format);
+
+        throw new IllegalArgumentException(String.format("Fornecedor de id [%s] não encontrado", id));
     }
 
-    private void validarCamposTexto(FornecedorDTO fornecedorDTO){
+    public FornecedorDTO findByCnpj(String cnpj){
+
+        LOGGER.info("Executando findByCnpj para fornecedor de cnpj: [{}]", cnpj);
+
+        Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findByCnpj(cnpj);
+
+        if(fornecedorOptional.isPresent()){
+            return FornecedorDTO.of(fornecedorOptional.get());
+        }
+
+        throw new IllegalArgumentException(String.format("Fornecedor de cnpj [%s] não encontrado", cnpj));
+    }
+
+    private void validarFornecedor(FornecedorDTO fornecedorDTO){
 
         LOGGER.info("Validando fornecedor");
 
@@ -157,18 +169,24 @@ public class FornecedorService {
         }
     }
 
-    public FornecedorDTO findByCnpj(String cnpj){
+    public String formatarCnpj(String cnpj){
 
-        Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findByCnpj(cnpj);
-
-        if(fornecedorOptional.isPresent()){
-
-            Fornecedor fornecedor = fornecedorOptional.get();
-            FornecedorDTO fornecedorDTO = FornecedorDTO.of(fornecedor);
-            return fornecedorDTO;
+        try {
+            MaskFormatter mask = new MaskFormatter("##.###.###/####-##");
+            mask.setValueContainsLiteralCharacters(false);
+            cnpj = mask.valueToString(cnpj);
+        } catch (ParseException ex) {
+            LOGGER.info("ERRO! Padrão de cnpj inválido");
         }
-        String format = String.format("Cnpj %s não existe", cnpj);
-        throw new IllegalArgumentException(format);
+
+        return cnpj;
+    }
+
+    public String desformatarCnpj(String cnpj) {
+        return cnpj
+                .replace(".", "")
+                .replace("/", "")
+                .replace("-", "");
     }
 
     public boolean findByIdFornecedor(Long id){
@@ -185,27 +203,7 @@ public class FornecedorService {
         }
     }
 
-    /** FORMATAÇÕES GERAL */
-    public String formatarCnpjFornecedor(String cnpj){
-
-        String cnpjFormatado =  cnpj.substring(0, 2)+ "."+cnpj.substring(2, 5)+"."+
-                cnpj.substring(5, 8)+ "/"+cnpj.substring(8, 12)+"-"+
-                cnpj.substring(12, 14);
-        return cnpjFormatado;
-    }
-
-    public String desformatarCnpjFornecedor(String cnpj) {
-
-        String cnpjDesformatado = ""+cnpj.charAt(0)+cnpj.charAt(1)+cnpj.charAt(3)+cnpj.charAt(4)+cnpj.charAt(5)+
-                cnpj.charAt(7)+cnpj.charAt(8)+cnpj.charAt(9)+cnpj.charAt(11)+cnpj.charAt(12)+
-                cnpj.charAt(13)+cnpj.charAt(14)+cnpj.charAt(16)+cnpj.charAt(17);
-        return cnpjDesformatado;
-    }
-
     public Fornecedor converterObjeto(FornecedorDTO fornecedorDTO){
-
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setId(fornecedorDTO.getId());
-        return fornecedor;
+        return Fornecedor.of(fornecedorDTO);
     }
 }

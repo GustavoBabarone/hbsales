@@ -2,7 +2,6 @@ package br.com.hbsis.fornecedor;
 
 public class FornecedorDTO{
 
-    /** ATRIBUTOS */
     private Long id;
     private String razaoSocial;
     private String cnpj;
@@ -11,7 +10,6 @@ public class FornecedorDTO{
     private String telefoneContato;
     private String emailContato;
 
-    /** CONSTRUTORES */
     public FornecedorDTO(){
     }
 
@@ -37,51 +35,52 @@ public class FornecedorDTO{
         );
     }
 
-    /** GETTER & SETTER*/
-    public Long getId() { return id; }
+    public Long getId() {
+        return id;
+    }
 
     public String getRazaoSocial() {
         return razaoSocial;
-    }
-
-    public String getCnpj() {
-        return cnpj;
-    }
-
-    public String getNomeFantasia() {
-        return nomeFantasia;
-    }
-
-    public String getEndereco() {
-        return endereco;
-    }
-
-    public String getTelefoneContato() {
-        return telefoneContato;
-    }
-
-    public String getEmailContato() {
-        return emailContato;
     }
 
     public void setRazaoSocial(String razaoSocial) {
         this.razaoSocial = razaoSocial;
     }
 
+    public String getCnpj() {
+        return cnpj;
+    }
+
     public void setCnpj(String cnpj) {
         this.cnpj = cnpj;
+    }
+
+    public String getNomeFantasia() {
+        return nomeFantasia;
     }
 
     public void setNomeFantasia(String nomeFantasia) {
         this.nomeFantasia = nomeFantasia;
     }
 
+    public String getEndereco() {
+        return endereco;
+    }
+
     public void setEndereco(String endereco) {
         this.endereco = endereco;
     }
 
+    public String getTelefoneContato() {
+        return telefoneContato;
+    }
+
     public void setTelefoneContato(String telefoneContato) {
         this.telefoneContato = telefoneContato;
+    }
+
+    public String getEmailContato() {
+        return emailContato;
     }
 
     public void setEmailContato(String emailContato) {
@@ -89,15 +88,15 @@ public class FornecedorDTO{
     }
 
     @Override
-    public  String toString() {
+    public String toString() {
         return "FornecedorDTO{" +
-                "id = " + id +
-                ", razao_social = " + razaoSocial + '\'' +
-                ", cnpj = " + cnpj + '\'' +
-                ", nome_fantasia = " + nomeFantasia + '\'' +
-                ", endereco = " + endereco + '\'' +
-                ", telefone_contato = " + telefoneContato + '\'' +
-                ", email_contato = " + emailContato + '\'' +
+                "id=" + id +
+                ", razaoSocial='" + razaoSocial + '\'' +
+                ", cnpj='" + cnpj + '\'' +
+                ", nomeFantasia='" + nomeFantasia + '\'' +
+                ", endereco='" + endereco + '\'' +
+                ", telefoneContato='" + telefoneContato + '\'' +
+                ", emailContato='" + emailContato + '\'' +
                 '}';
     }
 }
