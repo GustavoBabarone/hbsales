@@ -13,7 +13,6 @@ import java.util.List;
 @Component
 public class CSV {
 
-    /** PADRÃO DE EXPORTAÇÃO CSV - CATEGORIA - LINHA - PRODUTO */
     public ICSVWriter padraoExportarCsv(HttpServletResponse response, String arquivoCSV, String[] cabecalhoCSV) throws Exception{
 
         response.setContentType("text/csv");
@@ -27,7 +26,6 @@ public class CSV {
         return icsvWriter;
     }
 
-    /** PADRÃO DE IMPORTAÇÃO CSV - CATEGORIA - LINHA - PRODUTO */
     public List<String[]> padraoImportarCsv(MultipartFile file) throws Exception{
 
         InputStreamReader inputStreamReader = new InputStreamReader(file.getInputStream());
