@@ -19,8 +19,11 @@ public class Funcionario {
     @Column(name = "uuid", nullable = false, unique = false, length = 36)
     private String uuid;
 
-    /* CONSTRUTORES */
     public Funcionario() {
+    }
+
+    public Funcionario(Long id) {
+        this.id = id;
     }
 
     public Funcionario(String nome, String email, String uuid) {
@@ -29,13 +32,8 @@ public class Funcionario {
         this.uuid = uuid;
     }
 
-    /* GETTER & SETTER */
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getNome() {

@@ -15,7 +15,6 @@ public class FuncionarioRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(FuncionarioRest.class);
     private final FuncionarioService funcionarioService;
 
-    /* CONSTRUTOR */
     @Autowired
     public FuncionarioRest(FuncionarioService funcionarioService) {
         this.funcionarioService = funcionarioService;
@@ -24,9 +23,7 @@ public class FuncionarioRest {
     @PostMapping
     public FuncionarioDTO save(@RequestBody FuncionarioDTO funcionarioDTO){
 
-        LOGGER.info("Recebendo persistência de funcionário...");
-        LOGGER.debug("Payload: {}", funcionarioDTO);
-
+        LOGGER.info("Recebendo save de funcionario");
         return this.funcionarioService.salvar(funcionarioDTO);
     }
 }

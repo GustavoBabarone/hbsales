@@ -20,38 +20,35 @@ public class FuncionarioService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FuncionarioService.class);
     private final IFuncionarioRepository iFuncionarioRepository;
-
-    /** DEFINIR O 'RestTemplate' */
     private RestTemplate restTemplate;
 
-    @Autowired /** CONSTRUTOR */
+    @Autowired
     public FuncionarioService(IFuncionarioRepository iFuncionarioRepository, RestTemplate restTemplate) {
         this.iFuncionarioRepository = iFuncionarioRepository;
         this.restTemplate = restTemplate;
     }
 
-    /** MÉTODOS DE CRUD */
     public FuncionarioDTO salvar(FuncionarioDTO funcionarioDTO){
 
-        this.validarCamposTexto(funcionarioDTO);
+        this.validarFuncionario(funcionarioDTO);
 
-        LOGGER.info("Salvando funcionário");
-        LOGGER.debug("Funcionario: {}", funcionarioDTO);
+        LOGGER.info("Executando save de funcionario");
 
-        Funcionario funcionario = new Funcionario(  funcionarioDTO.getNome(),
-                                                    funcionarioDTO.getEmail(),
-                                                    this.validarFuncionarioNaAPI(funcionarioDTO).getEmployeeUuid());
+        HBEmployeeDTO hbEmployeeDTO = this.validarFuncionarioNaAPIExterna(funcionarioDTO);
+
+        Funcionario funcionario = new Funcionario(
+                funcionarioDTO.getNome(),
+                funcionarioDTO.getEmail(),
+                hbEmployeeDTO.getEmployeeUuid()
+        );
 
         funcionario = this.iFuncionarioRepository.save(funcionario);
-
-        LOGGER.info("Salvando novo funcionário... sucesso!");
-
         return FuncionarioDTO.of(funcionario);
     }
 
-    public void validarCamposTexto(FuncionarioDTO funcionarioDTO){
+    public void validarFuncionario(FuncionarioDTO funcionarioDTO){
 
-        LOGGER.info("Validando informações do funcionário...");
+        LOGGER.info("Validando funcionário");
 
         if(funcionarioDTO == null){
             throw new IllegalArgumentException("FuncionarioDTo não deve ser nulo");
@@ -80,34 +77,25 @@ public class FuncionarioService {
         if(funcionarioDTO.getUuid().length() > 36){
             throw new IllegalArgumentException("Uuid deve conter 36 caracteres");
         }
-
     }
 
     public FuncionarioDTO findById(Long id){
 
+        LOGGER.info("Executando findById para funcionario de id [{}]", id);
+
         Optional<Funcionario> funcionarioOptional = this.iFuncionarioRepository.findById(id);
 
         if (funcionarioOptional.isPresent()) {
-
-            Funcionario funcionario = funcionarioOptional.get();
-            FuncionarioDTO funcionarioDTO = FuncionarioDTO.of(funcionario);
-            return funcionarioDTO;
+            return FuncionarioDTO.of(funcionarioOptional.get());
         }
-        throw new IllegalArgumentException(String.format("Id %s não existe", id));
+
+        throw new IllegalArgumentException(String.format("Funcionario de id [%s] não encontrado", id));
     }
 
-    /** FORMATAÇÕES GERAL */
-    public Funcionario converterObjeto(FuncionarioDTO funcionarioDTO){
+    /** API */
+    public HBEmployeeDTO validarFuncionarioNaAPIExterna(FuncionarioDTO funcionarioDTO){
 
-        Funcionario funcionario = new Funcionario();
-        funcionario.setId(funcionarioDTO.getId());
-        return funcionario;
-    }
-
-    /** API - ATIVIDADE 13 */
-    public HBEmployeeDTO validarFuncionarioNaAPI(FuncionarioDTO funcionarioDTO){
-
-        LOGGER.info("Recebendo validação de funcionário na API...");
+        LOGGER.info("Validando funcionario na API...");
 
         /* CHAVE (KEY) DE ACESSO À API */
         String apiKey = "f59ff696-1b67-11ea-978f-2e728ce88125";
@@ -139,6 +127,5 @@ public class FuncionarioService {
         }
         throw new IllegalArgumentException("Falha ao validar funcionário na API...");
     }
-
 
 }
