@@ -12,7 +12,7 @@ public class PeriodoVendasRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(PeriodoVendasRest.class);
     private final PeriodoVendasService periodoVendasService;
 
-    @Autowired /** CONSTRUTOR */
+    @Autowired
     public PeriodoVendasRest(PeriodoVendasService periodoVendasService) {
         this.periodoVendasService = periodoVendasService;
     }
@@ -20,15 +20,14 @@ public class PeriodoVendasRest {
     @PostMapping
     public PeriodoVendasDTO save(@RequestBody PeriodoVendasDTO periodoVendasDTO){
 
-        LOGGER.info("Recebendo save de periodo de vendas...");
-        LOGGER.debug("Payload: {}", periodoVendasDTO);
+        LOGGER.info("Recebendo save de periodo de vendas");
         return this.periodoVendasService.salvar(periodoVendasDTO);
     }
 
     @GetMapping("/{id}")
     public PeriodoVendasDTO find(@PathVariable("id") Long id){
 
-        LOGGER.info("Recebendo findById... id: [{}]", id);
+        LOGGER.info("Recebendo findById para periodo de vendas de id: [{}]", id);
         return this.periodoVendasService.findById(id);
     }
 
@@ -36,14 +35,13 @@ public class PeriodoVendasRest {
     public PeriodoVendasDTO update(@PathVariable("id") Long id, @RequestBody PeriodoVendasDTO periodoVendasDTO){
 
         LOGGER.info("Recebendo update para periodo de vendas de id: [{}]", id);
-        LOGGER.debug("Payload: {}", periodoVendasDTO);
         return this.periodoVendasService.atualizar(periodoVendasDTO, id);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id){
 
-        LOGGER.info("Recebendo delete para periodo de vendas de id: {}");
+        LOGGER.info("Recebendo delete para periodo de vendas de id: [{}]", id);
         this.periodoVendasService.deletar(id);
     }
 }

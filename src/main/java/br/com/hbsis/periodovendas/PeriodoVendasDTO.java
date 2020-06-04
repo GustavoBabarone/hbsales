@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 public class PeriodoVendasDTO {
 
-    /** ATRIBUTOS */
     private Long id;
     private LocalDate dataInicio;
     private LocalDate dataFim;
@@ -12,11 +11,11 @@ public class PeriodoVendasDTO {
     private Long idFornecedor;
     private String descricao;
 
-    /** CONSTRUTORES */
     public PeriodoVendasDTO() {
     }
 
-    public PeriodoVendasDTO(Long id, LocalDate dataInicio, LocalDate dataFim, LocalDate dataRetirada, Long idFornecedor, String descricao) {
+    public PeriodoVendasDTO(Long id, LocalDate dataInicio, LocalDate dataFim, LocalDate dataRetirada,
+                            Long idFornecedor, String descricao) {
         this.id = id;
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
@@ -27,7 +26,6 @@ public class PeriodoVendasDTO {
 
     public static PeriodoVendasDTO of(PeriodoVendas periodoVendas){
         return new PeriodoVendasDTO(
-
                 periodoVendas.getId(),
                 periodoVendas.getDataInicio(),
                 periodoVendas.getDataFim(),
@@ -37,13 +35,8 @@ public class PeriodoVendasDTO {
         );
     }
 
-    /** GETTER & SETTER */
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public LocalDate getDataInicio() {

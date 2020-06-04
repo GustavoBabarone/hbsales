@@ -29,13 +29,19 @@ public class PeriodoVendas {
     @Column(name = "descricao", unique = false, length = 50, nullable = false)
     private String descricao;
 
-    /** GETTER & SETTER */
-    public Long getId() {
-        return id;
+    public PeriodoVendas() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public PeriodoVendas(LocalDate dataInicio, LocalDate dataFim, Fornecedor fornecedor, LocalDate dataRetirada, String descricao) {
+        this.dataInicio = dataInicio;
+        this.dataFim = dataFim;
+        this.fornecedor = fornecedor;
+        this.dataRetirada = dataRetirada;
+        this.descricao = descricao;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public LocalDate getDataInicio() {

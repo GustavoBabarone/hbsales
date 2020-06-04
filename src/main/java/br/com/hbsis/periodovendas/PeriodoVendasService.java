@@ -20,28 +20,27 @@ public class PeriodoVendasService {
     private final FornecedorService fornecedorService;
     private final IPeriodoVendasRepository iPeriodoVendasRepository;
 
-    @Autowired /** CONSTRUTOR */
+    @Autowired
     public PeriodoVendasService(FornecedorService fornecedorService, IPeriodoVendasRepository iPeriodoVendasRepository) {
         this.fornecedorService = fornecedorService;
         this.iPeriodoVendasRepository = iPeriodoVendasRepository;
     }
 
-    /** MÉTODOS DE CRUD */
     public PeriodoVendasDTO salvar(PeriodoVendasDTO periodoVendasDTO){
 
-        this.validarCamposTexto(periodoVendasDTO);
+        this.validarPeriodoVendas(periodoVendasDTO);
 
-        LOGGER.info("Salvando periodo de vendas...");
-        LOGGER.debug("Periodo de Vendas: {}", periodoVendasDTO);
-
-        PeriodoVendas periodoVendas = new PeriodoVendas();
-        periodoVendas.setDataInicio(periodoVendasDTO.getDataInicio());
-        periodoVendas.setDataFim(periodoVendasDTO.getDataFim());
-        periodoVendas.setDataRetirada(periodoVendasDTO.getDataRetirada());
-        periodoVendas.setDescricao(periodoVendasDTO.getDescricao());
+        LOGGER.info("Executando save de periodo de vendas");
 
         FornecedorDTO fornecedorDTO = fornecedorService.findById(periodoVendasDTO.getIdFornecedor());
-        periodoVendas.setFornecedor(Fornecedor.of(fornecedorDTO));
+
+        PeriodoVendas periodoVendas = new PeriodoVendas(
+                periodoVendasDTO.getDataInicio(),
+                periodoVendasDTO.getDataFim(),
+                Fornecedor.of(fornecedorDTO),
+                periodoVendasDTO.getDataRetirada(),
+                periodoVendasDTO.getDescricao()
+        );
 
         periodoVendas = this.iPeriodoVendasRepository.save(periodoVendas);
         return PeriodoVendasDTO.of(periodoVendas);
@@ -55,47 +54,50 @@ public class PeriodoVendasService {
 
             PeriodoVendas periodoVendasExistente = periodoVendasExistenteOptional.get();
 
-            LOGGER.info("Atualizando periodo... id: [{}]", periodoVendasDTO.getId());
-            LOGGER.debug("Payload: {}", periodoVendasDTO);
-            LOGGER.debug("Periodo de vendas existente: {}", periodoVendasExistente);
+            LOGGER.info("Executando update de periodo de vendas de id: [{}]", periodoVendasExistente.getId());
+
+            FornecedorDTO fornecedorDTO = fornecedorService.findById(periodoVendasDTO.getIdFornecedor());
 
             periodoVendasExistente.setDataInicio(periodoVendasDTO.getDataInicio());
             periodoVendasExistente.setDataFim(periodoVendasDTO.getDataFim());
+            periodoVendasExistente.setFornecedor(Fornecedor.of(fornecedorDTO));
             periodoVendasExistente.setDataRetirada(periodoVendasDTO.getDataRetirada());
             periodoVendasExistente.setDescricao(periodoVendasDTO.getDescricao());
-
-            FornecedorDTO fornecedorDTO = fornecedorService.findById(periodoVendasDTO.getIdFornecedor());
-            periodoVendasExistente.setFornecedor(Fornecedor.of(fornecedorDTO));
 
             periodoVendasExistente = this.iPeriodoVendasRepository.save(periodoVendasExistente);
             return PeriodoVendasDTO.of(periodoVendasExistente);
         }
-        throw new IllegalArgumentException(String.format("Id %s não existe", id));
+
+        throw new IllegalArgumentException(String.format("Periodo de vendas de id [%s] não encontrado", id));
     }
 
     public void deletar(Long id){
 
         LOGGER.info("Executando delete para periodo de vendas de id: [{}]", id);
 
-        this.iPeriodoVendasRepository.deleteById(id);
+        if(iPeriodoVendasRepository.existsById(id)){
+            this.iPeriodoVendasRepository.deleteById(id);
+        }else {
+            throw new IllegalArgumentException(String.format("Periodo de vendas de id [%s] não encontrado", id));
+        }
     }
 
     public PeriodoVendasDTO findById(Long id){
 
+        LOGGER.info("Executando findById para periodo de vendas de id: [{}]", id);
+
         Optional<PeriodoVendas> periodoVendasOptional = this.iPeriodoVendasRepository.findById(id);
 
         if(periodoVendasOptional.isPresent()){
-
-            PeriodoVendas periodoVendas = periodoVendasOptional.get();
-            PeriodoVendasDTO periodoVendasDTO = PeriodoVendasDTO.of(periodoVendas);
-            return periodoVendasDTO;
+            return PeriodoVendasDTO.of(periodoVendasOptional.get());
         }
-        throw new IllegalArgumentException(String.format("Id %s não existe", id));
+
+        throw new IllegalArgumentException(String.format("Periodo de vendas de id [%s] não encontrado", id));
     }
 
-    public void validarCamposTexto(PeriodoVendasDTO periodoVendasDTO){
+    public void validarPeriodoVendas(PeriodoVendasDTO periodoVendasDTO){
 
-        LOGGER.info("Validando periodo de vendas...");
+        LOGGER.info("Validando periodo de vendas");
 
         if(periodoVendasDTO == null){
             throw new IllegalArgumentException("PeriodoVendasDTO não deve ser nulo.");
@@ -121,11 +123,12 @@ public class PeriodoVendasService {
             throw new IllegalArgumentException("Descricao não deve ser nula/vazia.");
         }
 
-        /** VALIDAÇÃO DAS DATAS */
-        validarDatasInicioFim(periodoVendasDTO);
+        validarDatasVigencia(periodoVendasDTO);
     }
 
-    public void validarDatasInicioFim(PeriodoVendasDTO periodoVendasDTO) {
+    public void validarDatasVigencia(PeriodoVendasDTO periodoVendasDTO) {
+
+        LOGGER.info("Validando datas de vigencia do periodo de vendas");
 
         List<PeriodoVendas> periodoVendasList = this.iPeriodoVendasRepository.findAllByFornecedor_Id(periodoVendasDTO.getIdFornecedor());
 
@@ -144,19 +147,19 @@ public class PeriodoVendasService {
         for(PeriodoVendas periodoVendas : periodoVendasList){
 
             if (periodoVendasDTO.getDataInicio().isAfter(periodoVendas.getDataInicio()) && periodoVendasDTO.getDataFim().isBefore(periodoVendas.getDataFim())) {
-                throw new IllegalArgumentException("Caso 01");
+                throw new IllegalArgumentException("Periodo inválido");
             }
 
             if (periodoVendasDTO.getDataInicio().isBefore(periodoVendas.getDataInicio()) && periodoVendasDTO.getDataFim().isAfter(periodoVendas.getDataFim())) {
-                throw new IllegalArgumentException("Caso 02");
+                throw new IllegalArgumentException("Periodo inválido");
             }
 
             if (periodoVendasDTO.getDataInicio().isBefore(periodoVendas.getDataInicio()) && periodoVendasDTO.getDataFim().isAfter(periodoVendas.getDataInicio())) {
-                throw new IllegalArgumentException("Caso 03");
+                throw new IllegalArgumentException("Periodo inválido");
             }
 
             if (periodoVendasDTO.getDataInicio().isBefore(periodoVendas.getDataFim()) && periodoVendasDTO.getDataFim().isAfter(periodoVendas.getDataFim())) {
-                throw new IllegalArgumentException("Caso 04");
+                throw new IllegalArgumentException("Periodo inválido");
             }
         }
     }
