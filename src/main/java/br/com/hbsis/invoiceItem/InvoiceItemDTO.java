@@ -2,11 +2,9 @@ package br.com.hbsis.invoiceItem;
 
 public class InvoiceItemDTO {
 
-    /* ATRIBUTOS */
     private Long amount;
     private String itemName;
 
-    /* CONSTRUTORES */
     public InvoiceItemDTO() {
     }
 
@@ -15,7 +13,6 @@ public class InvoiceItemDTO {
         this.itemName = itemName;
     }
 
-    /* GETTER & SETTER */
     public Long getAmount() {
         return amount;
     }
