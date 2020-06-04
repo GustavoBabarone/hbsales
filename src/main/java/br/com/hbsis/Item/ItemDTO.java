@@ -2,13 +2,11 @@ package br.com.hbsis.Item;
 
 public class ItemDTO {
 
-    /* ATRIBUTOS */
     private Long id;
     private Long idPedido;
     private String nomeProduto;
     private Long quantidade;
 
-    /* CONSTRUTORES */
     public ItemDTO() {
     }
 
@@ -21,7 +19,6 @@ public class ItemDTO {
 
     public static ItemDTO of(Item item){
         return new ItemDTO(
-
                 item.getId(),
                 item.getPedido().getId(),
                 item.getProduto().getNome(),
@@ -29,13 +26,16 @@ public class ItemDTO {
         );
     }
 
-    /* GETTER & SETTER */
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getIdPedido() {
+        return idPedido;
+    }
+
+    public void setIdPedido(Long idPedido) {
+        this.idPedido = idPedido;
     }
 
     public String getNomeProduto() {

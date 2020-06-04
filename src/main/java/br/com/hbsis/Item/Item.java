@@ -13,24 +13,19 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne /* MUITOS ITENS PARA UM ÚNICO PEDIDO */
+    @ManyToOne
     @JoinColumn(name = "id_pedido", referencedColumnName = "id", nullable = false)
     private Pedido pedido;
 
-    @OneToOne /* UM ÚNICO ITEM PARA UM ÚNICO PRODUTO */
+    @OneToOne
     @JoinColumn(name = "nome_produto", referencedColumnName = "nome", nullable = false)
     private Produto produto;
 
     @Column(name = "quantidade", nullable = false, unique = false)
     private Long quantidade;
 
-    /* GETTER & SETTER */
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Pedido getPedido() {
