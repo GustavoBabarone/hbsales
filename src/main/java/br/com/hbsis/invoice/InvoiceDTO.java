@@ -6,13 +6,11 @@ import java.util.Set;
 
 public class InvoiceDTO {
 
-    /* ATRIBUTOS */
     private String cnpjFornecedor;
     private String employeeUuid;
     private Set<InvoiceItemDTO> invoiceItemDTOSet;
     private Double totalValue;
 
-    /* CONSTRUTORES */
     public InvoiceDTO() {
     }
 
@@ -23,7 +21,6 @@ public class InvoiceDTO {
         this.totalValue = totalValue;
     }
 
-    /* GETTER & SETTER */
     public String getCnpjFornecedor() {
         return cnpjFornecedor;
     }
