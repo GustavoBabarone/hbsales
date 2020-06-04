@@ -13,6 +13,15 @@ public class FornecedorDTO{
     public FornecedorDTO(){
     }
 
+    public FornecedorDTO(String razaoSocial, String cnpj, String nomeFantasia, String endereco, String telefoneContato, String emailContato){
+        this.razaoSocial = razaoSocial;
+        this.cnpj = cnpj;
+        this.nomeFantasia = nomeFantasia;
+        this.endereco = endereco;
+        this.telefoneContato = telefoneContato;
+        this.emailContato = emailContato;
+    }
+
     public FornecedorDTO(Long id, String razaoSocial, String cnpj, String nomeFantasia, String endereco, String telefoneContato, String emailContato){
         this.id = id;
         this.razaoSocial = razaoSocial;
