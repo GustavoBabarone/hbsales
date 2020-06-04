@@ -5,7 +5,6 @@ import br.com.hbsis.funcionario.Funcionario;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "seg_pedidos")
@@ -18,11 +17,11 @@ public class Pedido {
     @Column(name = "codigo_pedido", nullable = false, length = 10)
     private String codigoPedido;
 
-    @ManyToOne /* MUITOS PEDIDOS PARA UM ÚNICO FUNCIONÁRIO */
+    @ManyToOne
     @JoinColumn(name = "id_funcionario", referencedColumnName = "id", nullable = false)
     private Funcionario funcionario;
 
-    @ManyToOne /* UM ÚNICO FORNECEODOR PARA UM ÚNICO PEDIDO */
+    @ManyToOne
     @JoinColumn(name = "id_fornecedor", referencedColumnName = "id", nullable = false)
     private Fornecedor fornecedor;
 
@@ -33,15 +32,22 @@ public class Pedido {
     private String status;
 
     @Column(name = "data_registro", nullable = false)
-    private LocalDate dataRegistro;
+    private LocalDate dataRegistro = LocalDate.now();
 
-    /* GETTER & SETTER */
-    public Long getId() {
-        return id;
+    public Pedido() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Pedido(String codigoPedido, Funcionario funcionario,
+                  Fornecedor fornecedor, Double precoTotal, String status) {
+        this.codigoPedido = codigoPedido;
+        this.funcionario = funcionario;
+        this.fornecedor = fornecedor;
+        this.precoTotal = precoTotal;
+        this.status = status;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getCodigoPedido() {
@@ -86,10 +92,6 @@ public class Pedido {
 
     public LocalDate getDataRegistro() {
         return dataRegistro;
-    }
-
-    public void setDataRegistro(LocalDate dataRegistro) {
-        this.dataRegistro = dataRegistro;
     }
 
     @Override

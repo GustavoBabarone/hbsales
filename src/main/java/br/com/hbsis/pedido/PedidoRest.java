@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.text.ParseException;
-
 @RestController
 @RequestMapping("/pedidos")
 public class PedidoRest {
@@ -17,7 +15,7 @@ public class PedidoRest {
     public static final Logger LOGGER = LoggerFactory.getLogger(PedidoRest.class);
     public final PedidoService pedidoService;
 
-    @Autowired /** CONSTRUTOR */
+    @Autowired
     public PedidoRest(PedidoService pedidoService) {
         this.pedidoService = pedidoService;
     }
@@ -25,8 +23,7 @@ public class PedidoRest {
     @PostMapping
     public PedidoDTO save(@RequestBody PedidoDTO pedidoDTO) {
 
-        LOGGER.info("Recebendo save de pedido...");
-        LOGGER.debug("Payload... {}", pedidoDTO);
+        LOGGER.info("Recebendo save de pedido");
         return this.pedidoService.salvar(pedidoDTO);
     }
 }

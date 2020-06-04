@@ -4,20 +4,19 @@ import java.time.LocalDate;
 
 public class PedidoDTO {
 
-    /** ATRIBUTOS */
     private Long id;
     private String codigoPedido;
     private Long idFuncionario;
     private Long idFornecedor;
     private Double precoTotal;
     private String status;
-    private LocalDate dataRegistro;
+    private LocalDate dataRegistro = LocalDate.now();
 
-    /** CONSTRUTORES */
     public PedidoDTO() {
     }
 
-    public PedidoDTO(Long id, String codigoPedido, Long idFuncionario, Long idFornecedor, Double precoTotal, String status, LocalDate dataRegistro) {
+    public PedidoDTO(Long id, String codigoPedido, Long idFuncionario, Long idFornecedor,
+                     Double precoTotal, String status, LocalDate dataRegistro) {
         this.id = id;
         this.codigoPedido = codigoPedido;
         this.idFuncionario = idFuncionario;
@@ -29,7 +28,6 @@ public class PedidoDTO {
 
     public static PedidoDTO of(Pedido pedido){
         return new PedidoDTO(
-
                 pedido.getId(),
                 pedido.getCodigoPedido(),
                 pedido.getFuncionario().getId(),
@@ -40,13 +38,8 @@ public class PedidoDTO {
         );
     }
 
-    /** GETTER & SETTER */
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getCodigoPedido() {
