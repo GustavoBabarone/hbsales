@@ -52,7 +52,7 @@ public class CategoriaProdutoRest {
     public void exportCategoriaProduto(HttpServletResponse response) throws Exception {
 
         LOGGER.info("Recebendo exportação de CSV categoria de produto");
-        this.categoriaProdutoService.exportarCategoria(response);
+        this.categoriaProdutoService.exportarCsv(response);
     }
 
     @PostMapping("/import-categoria-produto")

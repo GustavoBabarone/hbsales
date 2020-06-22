@@ -51,8 +51,8 @@ public class ProdutoRest {
     @GetMapping("/export-produto")
     public void exportProduto(HttpServletResponse file) throws Exception {
 
-        LOGGER.info("Recebendo exportação para CSV produto");
-        this.produtoService.exportarProduto(file);
+        LOGGER.info("Recebendo exportação de CSV produto");
+        this.produtoService.exportarCsv(file);
     }
 
     @PostMapping("/import-produto")

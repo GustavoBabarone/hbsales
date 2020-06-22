@@ -1,6 +1,6 @@
 package br.com.hbsis.categoriaproduto;
 
-import br.com.hbsis.csv.CSV;
+import br.com.hbsis.csv.CSVService;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorService;
@@ -23,13 +23,13 @@ public class CategoriaProdutoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaProdutoService.class);
     private final ICategoriaProdutoRepository iCategoriaProdutoRepository;
     private final FornecedorService fornecedorService;
-    private final CSV csv;
+    private final CSVService csvService;
 
     @Autowired
-    public CategoriaProdutoService(ICategoriaProdutoRepository iCategoriaProdutoRepository, FornecedorService fornecedorService, CSV csv) {
+    public CategoriaProdutoService(ICategoriaProdutoRepository iCategoriaProdutoRepository, FornecedorService fornecedorService, CSVService csvService) {
         this.iCategoriaProdutoRepository = iCategoriaProdutoRepository;
         this.fornecedorService = fornecedorService;
-        this.csv = csv;
+        this.csvService = csvService;
     }
 
     public CategoriaProdutoDTO salvar(CategoriaProdutoDTO categoriaProdutoDTO) {
@@ -156,27 +156,26 @@ public class CategoriaProdutoService {
         return "CAT" + digitosCnpj + zerosEsquerda;
     }
 
-    public void exportarCategoria(HttpServletResponse response) throws Exception {
+    public void exportarCsv(HttpServletResponse response) throws Exception {
 
-        String arquivoCSV = "categoriaProduto.csv";
-        String[] cabecalhoCSV = {"codigo", "nome", "razao_social", "cnpj"};
-        ICSVWriter icsvWriter = csv.padraoExportarCsv(response, arquivoCSV, cabecalhoCSV);
+        ICSVWriter csvWriter = csvService.exportarCsv(response, CategoriaProduto.class);
 
         for(CategoriaProduto rows : iCategoriaProdutoRepository.findAll()){
 
-            icsvWriter.writeNext(new String[]{
+            csvWriter.writeNext(new String[]{
                     rows.getCodigoCategoria(),
                     rows.getNome(),
                     rows.getFornecedor().getRazaoSocial(),
                     fornecedorService.formatarCnpj(rows.getFornecedor().getCnpj()),
             });
         }
-        LOGGER.info("Finalizando exportação de produto...");
+
+        LOGGER.info("Finalizando exportação de CSV categoria de produto");
     }
 
     public List<CategoriaProduto> importarCategoria(MultipartFile file) throws Exception {
 
-        List<String[]> row = csv.padraoImportarCsv(file);
+        List<String[]> row = csvService.padraoImportarCsv(file);
         List<CategoriaProduto> categoriaProdutoList = new ArrayList<>();
 
         for(String[] linha : row){

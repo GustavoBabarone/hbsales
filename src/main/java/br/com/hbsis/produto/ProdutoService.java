@@ -3,7 +3,7 @@ package br.com.hbsis.produto;
 import br.com.hbsis.categoriaproduto.CategoriaProduto;
 import br.com.hbsis.categoriaproduto.CategoriaProdutoDTO;
 import br.com.hbsis.categoriaproduto.CategoriaProdutoService;
-import br.com.hbsis.csv.CSV;
+import br.com.hbsis.csv.CSVService;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorDTO;
 import br.com.hbsis.fornecedor.FornecedorService;
@@ -37,15 +37,15 @@ public class ProdutoService {
     private final FornecedorService fornecedorService;
     private final CategoriaProdutoService categoriaProdutoService;
     private final LinhaCategoriaService linhaCategoriaService;
-    private final CSV csv;
+    private final CSVService csvService;
 
     @Autowired
-    public ProdutoService(IProdutoRepository iProdutoRepository, FornecedorService fornecedorService, CategoriaProdutoService categoriaProdutoService, LinhaCategoriaService linhaCategoriaService, CSV csv) {
+    public ProdutoService(IProdutoRepository iProdutoRepository, FornecedorService fornecedorService, CategoriaProdutoService categoriaProdutoService, LinhaCategoriaService linhaCategoriaService, CSVService csvService) {
         this.iProdutoRepository = iProdutoRepository;
         this.fornecedorService = fornecedorService;
         this.categoriaProdutoService = categoriaProdutoService;
         this.linhaCategoriaService = linhaCategoriaService;
-        this.csv = csv;
+        this.csvService = csvService;
     }
 
     public ProdutoDTO salvar(ProdutoDTO produtoDTO){
@@ -242,18 +242,13 @@ public class ProdutoService {
         return validade;
     }
 
-    public void exportarProduto(HttpServletResponse response) throws Exception {
+    public void exportarCsv(HttpServletResponse response) throws Exception {
 
-        String arquivoCSV = "produtos.csv";
-        String[] cabecalhoCSV = {"codigo", "nome", "preco", "unidade_caixa", "peso_unidade",
-                "validade", "codigo_linha", "nome_linha", "codigo_categoria", "nome_categoria",
-                "cnpj_fornecedor", "razao_social_fornecedor"};
-        ICSVWriter icsvWriter = csv.padraoExportarCsv(response, arquivoCSV, cabecalhoCSV);
+        ICSVWriter icsvWriter = csvService.exportarCsv(response, Produto.class);
 
         for(Produto rows : iProdutoRepository.findAll()){
 
             icsvWriter.writeNext(new String[]{
-
                     rows.getCodigoProduto(),
                     rows.getNome(),
                     adicionarUnidadeMonetariaAoPreco(rows.getPreco()),
@@ -268,12 +263,13 @@ public class ProdutoService {
                     rows.getLinhaCategoria().getCategoriaProduto().getFornecedor().getRazaoSocial()
             });
         }
-        LOGGER.info("Finalizando exportação de produto");
+
+        LOGGER.info("Finalizando exportação de CSV produto");
     }
 
     public List<Produto> importarProduto(MultipartFile file) throws Exception {
 
-       List<String[]> row = csv.padraoImportarCsv(file);
+       List<String[]> row = csvService.padraoImportarCsv(file);
         List<Produto> produtoList = new ArrayList<>();
 
         for(String[] linha : row){
